@@ -58,4 +58,13 @@ class Borrowing extends Model
     {
         return $this->hasOne(FinePayment::class);
     }
+
+    public function getPendingFineAttribute(): float
+    {
+        if (! $this->relationLoaded('payment')) {
+            $this->loadMissing('payment');
+        }
+
+        return (float) ($this->payment?->status === 'pending' ? $this->payment?->amount : 0);
+    }
 }

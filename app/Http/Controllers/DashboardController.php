@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\ActivityLog;
 use App\Models\Asset;
 use App\Models\Borrowing;
+use App\Models\Category;
 use App\Models\FinePayment;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -18,6 +19,25 @@ class DashboardController extends Controller
     public function index(): View
     {
         $user = Auth::user();
+
+        if ($user->role === 'peminjam') {
+            $featuredAssets = Asset::with('category')
+                ->where('stock_available', '>', 0)
+                ->latest()
+                ->limit(8)
+                ->get();
+
+            $categories = Category::orderBy('name')->get();
+
+            $stats = [
+                'total_items' => Asset::count(),
+                'active_users' => User::where('role', 'peminjam')->count(),
+                'total_rentals' => Borrowing::where('user_id', $user->id)->count(),
+            ];
+
+            return view('pages.home-user', compact('featuredAssets', 'categories', 'stats'));
+        }
+
         $recentLogs = ActivityLog::with('user')->latest()->limit(8)->get();
 
         $summary = [

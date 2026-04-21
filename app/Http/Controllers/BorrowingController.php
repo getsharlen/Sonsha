@@ -20,13 +20,32 @@ class BorrowingController extends Controller
     public function index(): View
     {
         $query = Borrowing::with(['user', 'items.asset', 'approver'])->latest();
-        if (Auth::user()->role === 'peminjam') {
+        $user = Auth::user();
+
+        if ($user->role === 'peminjam') {
             $query->where('user_id', Auth::id());
         }
 
         $borrowings = $query->paginate(10);
         $assets = Asset::where('stock_available', '>', 0)->orderBy('name')->get();
         $users = User::where('role', 'peminjam')->orderBy('name')->get();
+
+        if ($user->role === 'peminjam') {
+            $summary = [
+                'total' => Borrowing::where('user_id', $user->id)->count(),
+                'active' => Borrowing::where('user_id', $user->id)
+                    ->whereIn('status', ['borrowed', 'late'])
+                    ->count(),
+                'pending' => Borrowing::where('user_id', $user->id)
+                    ->where('status', 'requested')
+                    ->count(),
+                'fines' => FinePayment::where('user_id', $user->id)
+                    ->where('status', 'pending')
+                    ->sum('amount'),
+            ];
+
+            return view('pages.borrowings-user', compact('borrowings', 'summary'));
+        }
 
         return view('borrowings.index', compact('borrowings', 'assets', 'users'));
     }

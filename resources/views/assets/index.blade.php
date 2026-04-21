@@ -1,4 +1,4 @@
-@extends('layouts.app')
+@extends('layouts.admin')
 
 @section('content')
 <div class="grid gap-6 xl:grid-cols-[1.05fr_1.35fr]">

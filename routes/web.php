@@ -5,8 +5,10 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BorrowingController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\FinePaymentController;
 use App\Http\Controllers\TechnicalReportController;
 use App\Http\Controllers\WalletController;
+use App\Http\Controllers\UserPortalController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -25,6 +27,13 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::post('/wallet/top-up', [WalletController::class, 'topUp'])->name('wallet.topup');
+    Route::get('/catalog', [UserPortalController::class, 'catalog'])->name('catalog');
+    Route::get('/catalog/{asset}', [UserPortalController::class, 'show'])->name('catalog.show');
+    Route::get('/profile', [UserPortalController::class, 'profile'])->name('profile');
+    Route::put('/profile/update', [UserPortalController::class, 'update'])->name('profile.update');
+    Route::get('/profile/change-password', [UserPortalController::class, 'changePassword'])->name('profile.change-password');
+    Route::delete('/profile/delete-account', [UserPortalController::class, 'destroy'])->name('profile.destroy');
+    Route::post('/fines/{fine}/pay', [FinePaymentController::class, 'pay'])->name('fines.pay');
 
     Route::get('/categories', [CategoryController::class, 'index'])->middleware('role:admin,petugas');
     Route::post('/categories', [CategoryController::class, 'store'])->middleware('role:admin,petugas');

@@ -50,6 +50,30 @@ class BorrowingController extends Controller
         return view('borrowings.index', compact('borrowings', 'assets', 'users'));
     }
 
+    public function show(Borrowing $borrowing): View
+    {
+        $user = Auth::user();
+
+        abort_unless(
+            $user->id === $borrowing->user_id || in_array($user->role, ['admin', 'petugas'], true),
+            403
+        );
+
+        $borrowing->load(['user', 'items.asset.category', 'approver', 'payment']);
+
+        if ($user->role === 'peminjam') {
+            return view('pages.borrowing-detail-user', compact('borrowing'));
+        }
+
+        // Load activity logs for admin view
+        $borrowing->activities = ActivityLog::where('user_id', $borrowing->user_id)
+            ->latest()
+            ->limit(20)
+            ->get();
+
+        return view('borrowings.detail-admin', compact('borrowing'));
+    }
+
     public function store(Request $request): RedirectResponse
     {
         $data = $request->validate([
@@ -211,5 +235,30 @@ class BorrowingController extends Controller
         });
 
         return back()->with('status', 'Pengembalian berhasil diproses.');
+    }
+
+    public function cancel(Borrowing $borrowing): RedirectResponse
+    {
+        $user = Auth::user();
+        abort_unless($user->id === $borrowing->user_id, 403);
+
+        if ($borrowing->status !== 'requested') {
+            return back()->with('status', 'Peminjaman ini tidak bisa dibatalkan.');
+        }
+
+        $borrowing->update([
+            'status' => 'rejected',
+            'notes' => 'Dibatalkan oleh peminjam.',
+        ]);
+
+        ActivityLog::create([
+            'user_id' => $user->id,
+            'module' => 'borrowing',
+            'action' => 'cancel',
+            'description' => 'Pengajuan peminjaman dibatalkan oleh peminjam.',
+            'payload' => ['borrowing_code' => $borrowing->borrowing_code],
+        ]);
+
+        return redirect('/borrowings')->with('status', 'Pengajuan peminjaman berhasil dibatalkan.');
     }
 }

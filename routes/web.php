@@ -32,6 +32,8 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile', [UserPortalController::class, 'profile'])->name('profile');
     Route::put('/profile/update', [UserPortalController::class, 'update'])->name('profile.update');
     Route::get('/profile/change-password', [UserPortalController::class, 'changePassword'])->name('profile.change-password');
+    Route::put('/profile/change-password', [UserPortalController::class, 'updatePassword'])->name('profile.change-password.update');
+    Route::get('/profile/delete-account', [UserPortalController::class, 'showDeleteAccount'])->name('profile.delete-account.show');
     Route::delete('/profile/delete-account', [UserPortalController::class, 'destroy'])->name('profile.destroy');
     Route::post('/fines/{fine}/pay', [FinePaymentController::class, 'pay'])->name('fines.pay');
 
@@ -46,7 +48,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/assets/{asset}', [AssetController::class, 'destroy'])->middleware('role:admin,petugas');
 
     Route::get('/borrowings', [BorrowingController::class, 'index']);
+    Route::get('/borrowings/{borrowing}', [BorrowingController::class, 'show']);
     Route::post('/borrowings', [BorrowingController::class, 'store']);
+    Route::post('/borrowings/{borrowing}/cancel', [BorrowingController::class, 'cancel']);
     Route::post('/borrowings/{borrowing}/approve', [BorrowingController::class, 'approve'])->middleware('role:admin,petugas');
     Route::post('/borrowings/{borrowing}/return', [BorrowingController::class, 'returnBorrowing']);
 

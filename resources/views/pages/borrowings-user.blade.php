@@ -77,7 +77,7 @@
     @if(($borrowings ?? collect())->count() > 0)
         <div class="space-y-6" id="borrowingsList">
             @foreach($borrowings ?? [] as $borrowing)
-                <div class="glass-hover glass p-6 rounded-2xl group" data-status="{{ $borrowing->status }}">
+                <div class="glass-hover glass p-6 rounded-2xl group" data-status="{{ in_array($borrowing->status, ['borrowed', 'late', 'approved'], true) ? 'active' : ($borrowing->status === 'requested' ? 'pending' : ($borrowing->status === 'returned' ? 'returned' : 'other')) }}">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                         <!-- Booking Code & Date -->
                         <div>

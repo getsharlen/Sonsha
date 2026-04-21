@@ -88,7 +88,7 @@
 
                         <div>
                             <label class="text-sm text-slate-400 mb-2 block">Nomor Telepon</label>
-                            <input type="tel" name="phone" placeholder="+62 ..." 
+                            <input type="tel" name="phone" value="{{ auth()->user()->phone }}" placeholder="+62 ..." 
                                 class="w-full glass bg-white/10 border-0 text-white py-3 px-4 rounded-lg focus:ring-2 focus:ring-pink-500 transition placeholder-slate-500">
                             <p class="mt-2 text-xs text-slate-500">Nomor ini dipakai untuk notifikasi terkait peminjaman dan denda.</p>
                         </div>
@@ -269,13 +269,9 @@
         <div class="glass-light glass border-l-4 border-red-500 p-8 rounded-2xl">
             <h3 class="text-xl font-bold text-red-300 mb-4">Zona Bahaya</h3>
             <p class="text-slate-300 mb-6">Tindakan berikut tidak dapat dibatalkan. Silakan lakukan dengan hati-hati.</p>
-            <form action="/profile/delete-account" method="POST" onsubmit="return confirm('Apakah Anda yakin ingin menghapus akun? Tindakan ini tidak dapat dibatalkan.');">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="bg-red-500/20 hover:bg-red-500/30 border border-red-400/30 text-red-300 px-6 py-3 rounded-lg font-semibold transition">
-                    <i class="fas fa-trash mr-2"></i> Hapus Akun Selamanya
-                </button>
-            </form>
+            <a href="/profile/delete-account" class="inline-block bg-red-500/20 hover:bg-red-500/30 border border-red-400/30 text-red-300 px-6 py-3 rounded-lg font-semibold transition">
+                <i class="fas fa-trash mr-2"></i> Hapus Akun Selamanya
+            </a>
         </div>
     </div>
 </div>

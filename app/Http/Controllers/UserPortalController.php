@@ -9,6 +9,10 @@ use App\Models\Category;
 use App\Models\FinePayment;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rules\Password;
 use Illuminate\View\View;
 
 class UserPortalController extends Controller
@@ -131,20 +135,68 @@ class UserPortalController extends Controller
         return back()->with('status', 'Profil berhasil diperbarui.');
     }
 
-    public function changePassword(): RedirectResponse
+    public function changePassword(): View
     {
-        return back()->with('status', 'Fitur ubah password akan diaktifkan pada tahap berikutnya.');
+        return view('pages.profile-change-password');
+    }
+
+    public function updatePassword(Request $request): RedirectResponse
+    {
+        $data = $request->validate([
+            'current_password' => ['required', 'current_password'],
+            'password' => ['required', 'confirmed', Password::min(8)],
+        ]);
+
+        $user = $request->user();
+        $user->update([
+            'password' => Hash::make($data['password']),
+        ]);
+
+        ActivityLog::create([
+            'user_id' => $user->id,
+            'module' => 'auth',
+            'action' => 'password_change',
+            'description' => 'Kata sandi akun berhasil diperbarui.',
+        ]);
+
+        return redirect('/profile')->with('status', 'Password berhasil diperbarui.');
+    }
+
+    public function showDeleteAccount(): View
+    {
+        return view('pages.profile-delete-account');
     }
 
     public function destroy(Request $request): RedirectResponse
     {
-        ActivityLog::create([
-            'user_id' => $request->user()->id,
-            'module' => 'profile',
-            'action' => 'delete_request',
-            'description' => 'Permintaan hapus akun diterima.',
+        $data = $request->validate([
+            'password' => ['required', 'current_password'],
         ]);
 
-        return back()->with('status', 'Penghapusan akun belum diaktifkan. Hubungi admin jika diperlukan.');
+        $user = $request->user();
+
+        DB::transaction(function () use ($user) {
+            // Log the deletion
+            ActivityLog::create([
+                'user_id' => $user->id,
+                'module' => 'profile',
+                'action' => 'account_deleted',
+                'description' => 'Akun telah dihapus secara permanen.',
+            ]);
+
+            // Delete related data
+            Borrowing::where('user_id', $user->id)->delete();
+            FinePayment::where('user_id', $user->id)->delete();
+            ActivityLog::where('user_id', $user->id)->delete();
+
+            // Delete the user account
+            $user->delete();
+        });
+
+        Auth::logout();
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        return redirect('/login')->with('status', 'Akun Anda telah dihapus secara permanen.');
     }
 }

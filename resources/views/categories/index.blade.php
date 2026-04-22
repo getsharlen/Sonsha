@@ -2,16 +2,17 @@
 
 @section('content')
 <div class="grid gap-6 xl:grid-cols-2">
-    <section class="rounded-3xl border border-white/10 bg-white/5 p-5">
+    <section class="glass-panel rounded-3xl p-5">
         <h3 class="text-lg font-semibold">Tambah Kategori</h3>
         <form class="mt-4 grid gap-3" method="POST" action="/categories">
             @csrf
-            <input name="name" placeholder="Nama kategori" class="rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3">
-            <textarea name="description" placeholder="Deskripsi" class="rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3"></textarea>
-            <button class="rounded-2xl bg-pink-500 px-4 py-3 font-semibold">Simpan</button>
+            <input name="name" placeholder="Nama kategori" class="field-input" required>
+            <textarea name="description" placeholder="Deskripsi" class="field-input min-h-24"></textarea>
+            <button class="rounded-2xl bg-gradient-to-r from-pink-500 to-rose-600 px-4 py-3 font-semibold text-white transition hover:brightness-110">Simpan</button>
         </form>
     </section>
-    <section class="rounded-3xl border border-white/10 bg-white/5 p-5">
+
+    <section class="glass-panel rounded-3xl p-5">
         <h3 class="text-lg font-semibold">Daftar Kategori</h3>
         <div class="mt-4 space-y-3 text-sm">
             @foreach($categories as $category)
@@ -22,11 +23,11 @@
                             <p class="text-xs text-slate-400">Total alat: {{ $category->assets_count }}</p>
                         </div>
                         <div class="flex gap-2">
-                            <button type="button" onclick="document.getElementById('edit-category-{{ $category->id }}').classList.toggle('hidden')" class="rounded-xl bg-sky-500 px-3 py-2 text-xs font-semibold">Edit</button>
-                            <form method="POST" action="/categories/{{ $category->id }}">
+                            <button type="button" onclick="document.getElementById('edit-category-{{ $category->id }}').classList.toggle('hidden')" class="rounded-xl bg-sky-500 px-3 py-2 text-xs font-semibold text-white">Edit</button>
+                            <form method="POST" action="/categories/{{ $category->id }}" onsubmit="return confirm('Hapus kategori ini?')">
                                 @csrf
                                 @method('DELETE')
-                                <button class="rounded-xl bg-rose-500 px-3 py-2 text-xs font-semibold">Hapus</button>
+                                <button class="rounded-xl bg-rose-500 px-3 py-2 text-xs font-semibold text-white">Hapus</button>
                             </form>
                         </div>
                     </div>
@@ -35,9 +36,9 @@
                         <form class="grid gap-2" method="POST" action="/categories/{{ $category->id }}">
                             @csrf
                             @method('PUT')
-                            <input name="name" value="{{ $category->name }}" class="rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2">
-                            <textarea name="description" class="rounded-xl border border-white/10 bg-slate-950/80 px-3 py-2">{{ $category->description }}</textarea>
-                            <button class="rounded-xl bg-sky-500 px-3 py-2 text-xs font-semibold">Simpan Perubahan</button>
+                            <input name="name" value="{{ $category->name }}" class="field-input" required>
+                            <textarea name="description" class="field-input">{{ $category->description }}</textarea>
+                            <button class="rounded-xl bg-sky-500 px-3 py-2 text-xs font-semibold text-white">Simpan Perubahan</button>
                         </form>
                     </div>
                 </div>
@@ -45,4 +46,26 @@
         </div>
     </section>
 </div>
+
+<style>
+    .glass-panel {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(10px);
+    }
+
+    .field-input {
+        border-radius: 0.9rem;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(15, 23, 42, 0.72);
+        padding: 0.7rem 0.9rem;
+        color: #e2e8f0;
+    }
+
+    .field-input:focus {
+        outline: none;
+        border-color: rgba(236, 72, 153, 0.65);
+        box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.2);
+    }
+</style>
 @endsection

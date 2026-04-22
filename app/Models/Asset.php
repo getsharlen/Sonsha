@@ -4,6 +4,8 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Asset extends Model
 {
@@ -22,6 +24,8 @@ class Asset extends Model
         'image_url',
     ];
 
+    protected $appends = ['image_source'];
+
     public function category()
     {
         return $this->belongsTo(Category::class);
@@ -30,5 +34,20 @@ class Asset extends Model
     public function items()
     {
         return $this->hasMany(BorrowingItem::class);
+    }
+
+    public function getImageSourceAttribute(): ?string
+    {
+        $rawImage = $this->getRawOriginal('image_url');
+
+        if (! $rawImage) {
+            return null;
+        }
+
+        if (Str::startsWith($rawImage, ['http://', 'https://', '/'])) {
+            return $rawImage;
+        }
+
+        return Storage::url($rawImage);
     }
 }

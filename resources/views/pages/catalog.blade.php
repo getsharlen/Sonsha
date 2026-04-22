@@ -90,8 +90,8 @@
                     <div class="relative">
                         <!-- Fashion Card Image -->
                         <div class="fashion-card glass-hover relative mb-3">
-                            @if($asset->image_url)
-                                <img src="{{ $asset->image_url }}" alt="{{ $asset->name }}" class="w-full h-full object-cover">
+                            @if($asset->image_source)
+                                <img src="{{ $asset->image_source }}" alt="{{ $asset->name }}" class="w-full h-full object-cover">
                             @else
                                 <div class="w-full h-full bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center">
                                     <i class="fas fa-image text-slate-500 text-4xl"></i>

@@ -1,10 +1,10 @@
 @extends('layouts.admin')
 
 @section('content')
-<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+<div class="py-2">
     <!-- Header Section -->
     <div class="mb-8">
-        <a href="/borrowings" class="text-slate-400 hover:text-blue-400 font-semibold transition">
+        <a href="/borrowings" class="text-slate-300 hover:text-pink-300 font-semibold transition">
             <i class="fas fa-arrow-left mr-2"></i> Kembali
         </a>
     </div>
@@ -13,7 +13,7 @@
         <!-- Main Content -->
         <div class="lg:col-span-2 space-y-6">
             <!-- Borrowing Header -->
-            <div class="bg-slate-800 border border-slate-700 p-8 rounded-2xl">
+            <div class="glass-panel p-8 rounded-2xl">
                 <div class="flex items-start justify-between mb-6">
                     <div>
                         <h1 class="text-3xl font-bold text-white mb-2">{{ $borrowing->borrowing_code }}</h1>
@@ -48,7 +48,7 @@
                 </div>
 
                 <!-- Key Dates -->
-                <div class="grid grid-cols-3 gap-4 pt-6 border-t border-slate-700">
+                <div class="grid grid-cols-1 gap-4 pt-6 border-t border-white/10 md:grid-cols-3">
                     <div>
                         <p class="text-slate-500 text-sm mb-1">Tanggal Permintaan</p>
                         <p class="text-white font-semibold">{{ $borrowing->created_at->format('d M Y H:i') }}</p>
@@ -65,16 +65,16 @@
             </div>
 
             <!-- Items Section -->
-            <div class="bg-slate-800 border border-slate-700 p-8 rounded-2xl">
+            <div class="glass-panel p-8 rounded-2xl">
                 <h2 class="text-2xl font-bold text-white mb-6">Item yang Dipinjam</h2>
                 <div class="space-y-4">
                     @forelse($borrowing->items as $item)
-                        <div class="bg-slate-700/50 p-4 rounded-lg border border-slate-600">
+                        <div class="bg-slate-900/45 p-4 rounded-lg border border-white/10">
                             <div class="flex gap-4">
                                 <!-- Item Image -->
                                 <div class="flex-shrink-0">
                                     <img 
-                                        src="{{ $item->asset->image_url ?? '/placeholder.jpg' }}" 
+                                        src="{{ $item->asset->image_source ?? '/placeholder.jpg' }}" 
                                         alt="{{ $item->asset->name }}"
                                         class="w-20 h-20 rounded-lg object-cover"
                                     >
@@ -89,7 +89,7 @@
                                         </div>
                                         <div class="text-right">
                                             <p class="text-slate-300 text-sm">Qty: {{ $item->quantity }}</p>
-                                            <p class="text-blue-300 font-semibold">Rp {{ number_format($item->asset->rent_fee, 0, ',', '.') }}/hari</p>
+                                            <p class="text-pink-300 font-semibold">Rp {{ number_format($item->asset->rent_fee, 0, ',', '.') }}/hari</p>
                                         </div>
                                     </div>
                                     <p class="text-slate-400 text-sm">Brand: {{ $item->asset->brand ?? '-' }}</p>
@@ -104,14 +104,14 @@
 
             <!-- Purpose Section -->
             @if($borrowing->purpose)
-                <div class="bg-slate-800 border border-slate-700 p-8 rounded-2xl">
+                <div class="glass-panel p-8 rounded-2xl">
                     <h2 class="text-lg font-bold text-white mb-4">Tujuan Peminjaman</h2>
                     <p class="text-slate-300">{{ $borrowing->purpose }}</p>
                 </div>
             @endif
 
             <!-- Action Section -->
-            <div class="bg-slate-800 border border-slate-700 p-8 rounded-2xl">
+            <div class="glass-panel p-8 rounded-2xl">
                 <h2 class="text-lg font-bold text-white mb-6">Tindakan</h2>
                 <div class="space-y-3">
                     @if($borrowing->status === 'requested')
@@ -145,12 +145,12 @@
             </div>
 
             <!-- Activity Log -->
-            <div class="bg-slate-800 border border-slate-700 p-8 rounded-2xl">
+            <div class="glass-panel p-8 rounded-2xl">
                 <h2 class="text-lg font-bold text-white mb-6">Log Aktivitas</h2>
                 <div class="space-y-3">
                     @forelse($borrowing->activities ?? [] as $activity)
-                        <div class="flex items-start gap-3 pb-3 border-b border-slate-700 last:border-0">
-                            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center">
+                        <div class="flex items-start gap-3 pb-3 border-b border-white/10 last:border-0">
+                            <div class="flex-shrink-0 w-8 h-8 rounded-full bg-slate-900/70 border border-white/10 flex items-center justify-center">
                                 <i class="fas fa-history text-slate-400 text-xs"></i>
                             </div>
                             <div class="flex-1">
@@ -169,7 +169,7 @@
         <!-- Sidebar -->
         <div class="space-y-6">
             <!-- Peminjam Info -->
-            <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl">
+            <div class="glass-panel p-6 rounded-2xl">
                 <h3 class="text-lg font-bold text-white mb-4">Informasi Peminjam</h3>
                 <div class="space-y-4">
                     <div>
@@ -178,7 +178,7 @@
                     </div>
                     <div>
                         <p class="text-slate-500 text-sm mb-1">Email</p>
-                        <p class="text-blue-300">{{ $borrowing->user->email }}</p>
+                        <p class="text-pink-300">{{ $borrowing->user->email }}</p>
                     </div>
                     <div>
                         <p class="text-slate-500 text-sm mb-1">Telepon</p>
@@ -199,7 +199,7 @@
 
             <!-- Peninjau Info -->
             @if($borrowing->approver)
-                <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl">
+                <div class="glass-panel p-6 rounded-2xl">
                     <h3 class="text-lg font-bold text-white mb-4">Disetujui Oleh</h3>
                     <div class="space-y-3">
                         <p class="text-white font-semibold">{{ $borrowing->approver->name }}</p>
@@ -210,9 +210,9 @@
             @endif
 
             <!-- Financial Summary -->
-            <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl">
+            <div class="glass-panel p-6 rounded-2xl">
                 <h3 class="text-lg font-bold text-white mb-4">Ringkasan Keuangan</h3>
-                <div class="space-y-3 border-b border-slate-700 pb-4 mb-4">
+                <div class="space-y-3 border-b border-white/10 pb-4 mb-4">
                     @php
                         $totalCost = 0;
                         $days = $borrowing->returned_at 
@@ -250,4 +250,12 @@
         </div>
     </div>
 </div>
+
+<style>
+    .glass-panel {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(10px);
+    }
+</style>
 @endsection

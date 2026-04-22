@@ -17,8 +17,8 @@
         <!-- Product Image -->
         <div>
             <div class="fashion-card glass-hover mb-6 aspect-square">
-                @if($asset->image_url)
-                    <img src="{{ $asset->image_url }}" alt="{{ $asset->name }}" class="w-full h-full object-cover">
+                @if($asset->image_source)
+                    <img src="{{ $asset->image_source }}" alt="{{ $asset->name }}" class="w-full h-full object-cover">
                 @else
                     <div class="w-full h-full bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center">
                         <i class="fas fa-image text-slate-500 text-6xl"></i>
@@ -30,8 +30,8 @@
             <div class="flex gap-3">
                 @for($i = 0; $i < 4; $i++)
                     <div class="glass-hover glass w-20 h-20 rounded-xl overflow-hidden cursor-pointer hover:border-pink-400">
-                        @if($asset->image_url)
-                            <img src="{{ $asset->image_url }}" alt="Gallery" class="w-full h-full object-cover">
+                        @if($asset->image_source)
+                            <img src="{{ $asset->image_source }}" alt="Gallery" class="w-full h-full object-cover">
                         @else
                             <div class="w-full h-full bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center">
                                 <i class="fas fa-image text-slate-500"></i>
@@ -220,8 +220,8 @@
             @forelse($relatedAssets ?? [] as $related)
                 <div class="group">
                     <div class="fashion-card glass-hover relative mb-3">
-                        @if($related->image_url)
-                            <img src="{{ $related->image_url }}" alt="{{ $related->name }}" class="w-full h-full object-cover">
+                        @if($related->image_source)
+                            <img src="{{ $related->image_source }}" alt="{{ $related->name }}" class="w-full h-full object-cover">
                         @else
                             <div class="w-full h-full bg-gradient-to-br from-slate-700 to-slate-900 flex items-center justify-center">
                                 <i class="fas fa-image text-slate-500 text-3xl"></i>

@@ -2,26 +2,26 @@
 
 @section('content')
 <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-    <div class="rounded-3xl border border-white/10 bg-white/5 p-5">
+    <div class="glass-panel rounded-3xl p-5">
         <p class="text-sm text-slate-300">Total User</p>
         <h3 class="mt-3 text-3xl font-semibold">{{ $summary['users'] }}</h3>
     </div>
-    <div class="rounded-3xl border border-white/10 bg-white/5 p-5">
+    <div class="glass-panel rounded-3xl p-5">
         <p class="text-sm text-slate-300">Total Alat</p>
         <h3 class="mt-3 text-3xl font-semibold">{{ $summary['assets'] }}</h3>
     </div>
-    <div class="rounded-3xl border border-white/10 bg-white/5 p-5">
+    <div class="glass-panel rounded-3xl p-5">
         <p class="text-sm text-slate-300">Peminjaman</p>
         <h3 class="mt-3 text-3xl font-semibold">{{ $summary['borrowings'] }}</h3>
     </div>
-    <div class="rounded-3xl border border-white/10 bg-white/5 p-5">
+    <div class="glass-panel rounded-3xl p-5">
         <p class="text-sm text-slate-300">Saldo / Denda Pending</p>
         <h3 class="mt-3 text-3xl font-semibold">Rp {{ number_format($pendingFines, 0, ',', '.') }}</h3>
     </div>
 </div>
 
 <div class="mt-6 grid gap-6 xl:grid-cols-[1.6fr_1fr]">
-    <section class="rounded-3xl border border-white/10 bg-white/5 p-5">
+    <section class="glass-panel rounded-3xl p-5">
         <div class="flex items-center justify-between">
             <div>
                 <h3 class="text-lg font-semibold">Tren Peminjaman per Bulan</h3>
@@ -31,7 +31,7 @@
         <canvas id="borrowChart" class="mt-6 h-80 w-full"></canvas>
     </section>
 
-    <section class="rounded-3xl border border-white/10 bg-white/5 p-5">
+    <section class="glass-panel rounded-3xl p-5">
         <h3 class="text-lg font-semibold">Alat Paling Sering Dipinjam</h3>
         <div class="mt-4 space-y-3 text-sm">
             @forelse($topAssets as $asset)
@@ -47,7 +47,7 @@
 </div>
 
 <div class="mt-6 grid gap-6 xl:grid-cols-2">
-    <section class="rounded-3xl border border-white/10 bg-white/5 p-5">
+    <section class="glass-panel rounded-3xl p-5">
         <h3 class="text-lg font-semibold">Aktivitas Terbaru</h3>
         <div class="mt-4 space-y-3 text-sm">
             @foreach($recentLogs as $log)
@@ -60,13 +60,13 @@
         </div>
     </section>
 
-    <section class="rounded-3xl border border-white/10 bg-white/5 p-5">
+    <section class="glass-panel rounded-3xl p-5">
         <h3 class="text-lg font-semibold">Manajemen Saldo</h3>
         <p class="mt-2 text-sm text-slate-300">Saldo user dipakai untuk mockup e-wallet denda otomatis.</p>
         <form class="mt-4 flex gap-3" method="POST" action="/wallet/top-up">
             @csrf
-            <input name="amount" type="number" min="1000" step="1000" placeholder="Top up saldo" class="min-w-0 flex-1 rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3">
-            <button class="rounded-2xl bg-pink-500 px-4 py-3 font-semibold">Top Up</button>
+            <input name="amount" type="number" min="1000" step="1000" placeholder="Top up saldo" class="field-input min-w-0 flex-1">
+            <button class="rounded-2xl bg-gradient-to-r from-pink-500 to-rose-600 px-4 py-3 font-semibold text-white transition hover:brightness-110">Top Up</button>
         </form>
         <div class="mt-5 rounded-2xl border border-white/10 bg-slate-950/60 p-4 text-sm text-slate-300">
             <p>Status akun: <span class="font-semibold text-white">{{ $user->status }}</span></p>
@@ -102,4 +102,26 @@
         },
     });
 </script>
+
+<style>
+    .glass-panel {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(10px);
+    }
+
+    .field-input {
+        border-radius: 0.9rem;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(15, 23, 42, 0.72);
+        padding: 0.7rem 0.9rem;
+        color: #e2e8f0;
+    }
+
+    .field-input:focus {
+        outline: none;
+        border-color: rgba(236, 72, 153, 0.65);
+        box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.2);
+    }
+</style>
 @endsection

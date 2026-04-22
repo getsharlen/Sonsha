@@ -2,30 +2,30 @@
 
 @section('content')
 <div class="grid gap-6 xl:grid-cols-[1.1fr_1.3fr]">
-    <section class="rounded-3xl border border-white/10 bg-white/5 p-5">
+    <section class="glass-panel rounded-3xl p-5">
         <h3 class="text-lg font-semibold">Ajukan Peminjaman</h3>
         <form class="mt-4 grid gap-3" method="POST" action="/borrowings">
             @csrf
             @if(in_array(auth()->user()->role, ['admin', 'petugas'], true))
-                <select name="user_id" class="rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3">
+                <select name="user_id" class="field-input" required>
                     @foreach($users->where('role', 'peminjam') as $user)
                         <option value="{{ $user->id }}">{{ $user->name }}</option>
                     @endforeach
                 </select>
             @endif
-            <select name="asset_id" class="rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3">
+            <select name="asset_id" class="field-input" required>
                 @foreach($assets as $asset)
                     <option value="{{ $asset->id }}">{{ $asset->name }} - stok {{ $asset->stock_available }}</option>
                 @endforeach
             </select>
-            <input name="quantity" type="number" min="1" value="1" class="rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3">
-            <textarea name="purpose" placeholder="Tujuan peminjaman" class="rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3"></textarea>
-            <input name="due_at" type="date" class="rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3">
-            <button class="rounded-2xl bg-pink-500 px-4 py-3 font-semibold">Buat Pengajuan</button>
+            <input name="quantity" type="number" min="1" value="1" class="field-input" required>
+            <textarea name="purpose" placeholder="Tujuan peminjaman" class="field-input min-h-24"></textarea>
+            <input name="due_at" type="date" class="field-input" required>
+            <button class="rounded-2xl bg-gradient-to-r from-pink-500 to-rose-600 px-4 py-3 font-semibold text-white transition hover:brightness-110">Buat Pengajuan</button>
         </form>
     </section>
 
-    <section class="rounded-3xl border border-white/10 bg-white/5 p-5">
+    <section class="glass-panel rounded-3xl p-5">
         <h3 class="text-lg font-semibold">Daftar Peminjaman</h3>
         <div class="mt-4 space-y-3 text-sm">
             @foreach($borrowings as $borrowing)
@@ -38,7 +38,7 @@
                         @if(in_array(auth()->user()->role, ['admin', 'petugas'], true) && $borrowing->status === 'requested')
                             <form method="POST" action="/borrowings/{{ $borrowing->id }}/approve">
                                 @csrf
-                                <button class="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-semibold">Approve</button>
+                                <button class="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-semibold text-white">Approve</button>
                             </form>
                         @endif
                     </div>
@@ -54,7 +54,7 @@
                     @if(in_array($borrowing->status, ['approved', 'borrowed'], true))
                         <form class="mt-3" method="POST" action="/borrowings/{{ $borrowing->id }}/return">
                             @csrf
-                            <button class="rounded-xl bg-pink-500 px-3 py-2 text-xs font-semibold">Proses Pengembalian</button>
+                            <button class="rounded-xl bg-pink-500 px-3 py-2 text-xs font-semibold text-white">Proses Pengembalian</button>
                         </form>
                     @endif
                 </div>
@@ -63,4 +63,26 @@
         <div class="mt-4">{{ $borrowings->links() }}</div>
     </section>
 </div>
+
+<style>
+    .glass-panel {
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(255, 255, 255, 0.06);
+        backdrop-filter: blur(10px);
+    }
+
+    .field-input {
+        border-radius: 0.9rem;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        background: rgba(15, 23, 42, 0.72);
+        padding: 0.7rem 0.9rem;
+        color: #e2e8f0;
+    }
+
+    .field-input:focus {
+        outline: none;
+        border-color: rgba(236, 72, 153, 0.65);
+        box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.2);
+    }
+</style>
 @endsection

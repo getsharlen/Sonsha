@@ -144,8 +144,8 @@
                             @foreach($borrowing->items as $item)
                                 <div class="glass bg-white/5 p-3 rounded-lg">
                                     <div class="flex items-start gap-3">
-                                        @if($item->asset->image_url)
-                                            <img src="{{ $item->asset->image_url }}" alt="{{ $item->asset->name }}" class="w-12 h-12 rounded-lg object-cover">
+                                        @if($item->asset->image_source)
+                                            <img src="{{ $item->asset->image_source }}" alt="{{ $item->asset->name }}" class="w-12 h-12 rounded-lg object-cover">
                                         @else
                                             <div class="w-12 h-12 bg-gradient-to-br from-slate-700 to-slate-900 rounded-lg flex items-center justify-center">
                                                 <i class="fas fa-image text-slate-500 text-xs"></i>

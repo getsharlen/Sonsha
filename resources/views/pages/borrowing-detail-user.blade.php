@@ -35,8 +35,8 @@
             <div class="space-y-3">
                 @foreach($borrowing->items as $item)
                     <div class="rounded-xl border border-white/10 bg-slate-900/50 p-4 flex items-center gap-3">
-                        @if($item->asset?->image_url)
-                            <img src="{{ $item->asset->image_url }}" alt="{{ $item->asset?->name }}" class="w-14 h-14 rounded-lg object-cover">
+                        @if($item->asset?->image_source)
+                            <img src="{{ $item->asset->image_source }}" alt="{{ $item->asset?->name }}" class="w-14 h-14 rounded-lg object-cover">
                         @else
                             <div class="w-14 h-14 rounded-lg bg-slate-800 flex items-center justify-center text-slate-500">
                                 <i class="fas fa-image"></i>

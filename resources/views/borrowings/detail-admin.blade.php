@@ -250,12 +250,4 @@
         </div>
     </div>
 </div>
-
-<style>
-    .glass-panel {
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        background: rgba(255, 255, 255, 0.06);
-        backdrop-filter: blur(10px);
-    }
-</style>
 @endsection

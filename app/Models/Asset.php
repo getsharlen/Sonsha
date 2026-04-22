@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class Asset extends Model
 {
@@ -44,8 +43,8 @@ class Asset extends Model
             return null;
         }
 
-        if (Str::startsWith($rawImage, ['http://', 'https://', '/'])) {
-            return $rawImage;
+        if (! Storage::disk('public')->exists($rawImage)) {
+            return null;
         }
 
         return Storage::url($rawImage);

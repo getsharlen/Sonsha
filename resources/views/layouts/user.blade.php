@@ -260,7 +260,6 @@
                         </button>
                         <div class="absolute right-0 mt-2 w-48 glass hidden group-hover:block rounded-xl shadow-xl">
                             <a href="/profile" class="block px-4 py-2 text-sm hover:bg-white/10 rounded-t-xl">Profil</a>
-                            <a href="/profile#settings" class="block px-4 py-2 text-sm hover:bg-white/10">Pengaturan</a>
                             <form method="POST" action="/logout" class="border-t border-white/10">
                                 @csrf
                                 <button class="w-full text-left px-4 py-2 text-sm hover:bg-white/10 rounded-b-xl">Logout</button>

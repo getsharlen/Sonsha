@@ -45,17 +45,14 @@
     <!-- Tabs -->
     <div class="mb-8 border-b border-white/10">
         <div class="flex gap-1 overflow-x-auto">
-            <button class="tab-btn active px-6 py-3 border-b-2 border-pink-500 text-pink-300 font-semibold transition" data-tab="info">
+            <button type="button" class="tab-btn active px-6 py-3 border-b-2 border-pink-500 text-pink-300 font-semibold transition" data-tab="info">
                 Informasi Akun
             </button>
-            <button class="tab-btn px-6 py-3 border-b-2 border-transparent text-slate-400 hover:text-white font-semibold transition" data-tab="payment">
+            <button type="button" class="tab-btn px-6 py-3 border-b-2 border-transparent text-slate-400 hover:text-white font-semibold transition" data-tab="payment">
                 Pembayaran & Denda
             </button>
-            <button class="tab-btn px-6 py-3 border-b-2 border-transparent text-slate-400 hover:text-white font-semibold transition" data-tab="history">
+            <button type="button" class="tab-btn px-6 py-3 border-b-2 border-transparent text-slate-400 hover:text-white font-semibold transition" data-tab="history">
                 Riwayat
-            </button>
-            <button class="tab-btn px-6 py-3 border-b-2 border-transparent text-slate-400 hover:text-white font-semibold transition" data-tab="settings">
-                Pengaturan
             </button>
         </div>
     </div>
@@ -128,9 +125,24 @@
                     <p class="text-4xl font-bold text-pink-300 mb-4">
                         Rp {{ number_format(auth()->user()->balance, 0, ',', '.') }}
                     </p>
-                    <button class="w-full btn-luxury glass-hover glass px-4 py-2 rounded-lg font-semibold transition">
-                        <i class="fas fa-plus mr-2"></i> Top Up
-                    </button>
+
+                    <form method="POST" action="{{ route('wallet.topup') }}" class="space-y-3">
+                        @csrf
+                        <label for="topup-amount" class="text-sm text-slate-400 block">Jumlah Top Up</label>
+                        <input
+                            id="topup-amount"
+                            name="amount"
+                            type="number"
+                            min="1000"
+                            step="1000"
+                            required
+                            placeholder="Minimal Rp 1.000"
+                            class="w-full glass bg-white/10 border-0 text-white py-2.5 px-4 rounded-lg focus:ring-2 focus:ring-pink-500 transition placeholder-slate-500"
+                        >
+                        <button type="submit" class="w-full btn-luxury bg-gradient-to-r from-pink-500 to-rose-600 px-4 py-2 rounded-lg font-semibold transition hover:shadow-lg">
+                            <i class="fas fa-plus mr-2"></i> Top Up Saldo
+                        </button>
+                    </form>
                 </div>
             </div>
         </div>
@@ -222,78 +234,40 @@
         </div>
     </div>
 
-    <!-- Settings Tab -->
-    <div class="tab-content hidden" data-tab="settings">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-            <!-- Notification Settings -->
-            <div class="glass-light glass p-8 rounded-2xl">
-                <h3 class="text-xl font-bold mb-6">Notifikasi</h3>
-                <div class="space-y-4">
-                    <label class="flex items-center gap-3 cursor-pointer">
-                        <input type="checkbox" checked class="w-4 h-4 rounded">
-                        <span class="text-sm">Email untuk pembaruan peminjaman</span>
-                    </label>
-                    <label class="flex items-center gap-3 cursor-pointer">
-                        <input type="checkbox" checked class="w-4 h-4 rounded">
-                        <span class="text-sm">Pemberitahuan denda yang akan jatuh tempo</span>
-                    </label>
-                    <label class="flex items-center gap-3 cursor-pointer">
-                        <input type="checkbox" checked class="w-4 h-4 rounded">
-                        <span class="text-sm">Penawaran dan promosi eksklusif</span>
-                    </label>
-                    <label class="flex items-center gap-3 cursor-pointer">
-                        <input type="checkbox" class="w-4 h-4 rounded">
-                        <span class="text-sm">SMS untuk item yang tersedia</span>
-                    </label>
-                </div>
-            </div>
-
-            <!-- Privacy Settings -->
-            <div class="glass-light glass p-8 rounded-2xl">
-                <h3 class="text-xl font-bold mb-6">Privasi & Keamanan</h3>
-                <div class="space-y-4">
-                    <a href="/profile/change-password" class="block btn-luxury glass-hover glass px-4 py-2 rounded-lg font-semibold transition">
-                        Ubah Password
-                    </a>
-                    <button class="w-full btn-luxury glass-hover glass px-4 py-2 rounded-lg font-semibold transition text-left">
-                        <i class="fas fa-shield-alt mr-2"></i> Verifikasi Dua Faktor
-                    </button>
-                    <button class="w-full btn-luxury glass-hover glass px-4 py-2 rounded-lg font-semibold transition text-left">
-                        <i class="fas fa-sign-out-alt mr-2"></i> Logout Semua Perangkat
-                    </button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Danger Zone -->
-        <div class="glass-light glass border-l-4 border-red-500 p-8 rounded-2xl">
-            <h3 class="text-xl font-bold text-red-300 mb-4">Zona Bahaya</h3>
-            <p class="text-slate-300 mb-6">Tindakan berikut tidak dapat dibatalkan. Silakan lakukan dengan hati-hati.</p>
-            <a href="/profile/delete-account" class="inline-block bg-red-500/20 hover:bg-red-500/30 border border-red-400/30 text-red-300 px-6 py-3 rounded-lg font-semibold transition">
-                <i class="fas fa-trash mr-2"></i> Hapus Akun Selamanya
-            </a>
-        </div>
-    </div>
 </div>
 
 <script>
     // Tab switching
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', function() {
-            const tab = this.dataset.tab;
-            
-            document.querySelectorAll('.tab-btn').forEach(b => {
-                b.classList.remove('border-pink-500', 'text-pink-300');
-                b.classList.add('border-transparent', 'text-slate-400');
-            });
-            this.classList.add('border-pink-500', 'text-pink-300');
-            this.classList.remove('border-transparent', 'text-slate-400');
+    const tabButtons = document.querySelectorAll('.tab-btn');
+    const tabContents = document.querySelectorAll('.tab-content');
 
-            document.querySelectorAll('.tab-content').forEach(content => {
-                content.classList.add('hidden');
-            });
-            document.querySelector(`[data-tab="${tab}"]`).classList.remove('hidden');
+    const activateTab = (tab) => {
+        tabButtons.forEach(button => {
+            const isActive = button.dataset.tab === tab;
+            button.classList.toggle('border-pink-500', isActive);
+            button.classList.toggle('text-pink-300', isActive);
+            button.classList.toggle('border-transparent', !isActive);
+            button.classList.toggle('text-slate-400', !isActive);
+        });
+
+        tabContents.forEach(content => {
+            content.classList.toggle('hidden', content.dataset.tab !== tab);
+        });
+    };
+
+    tabButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const tab = this.dataset.tab;
+            activateTab(tab);
+            window.location.hash = `tab-${tab}`;
         });
     });
+
+    const hash = window.location.hash.replace('#', '');
+    const hashTab = hash.startsWith('tab-') ? hash.replace('tab-', '') : hash;
+    const availableTabs = Array.from(tabButtons).map(button => button.dataset.tab);
+    const initialTab = availableTabs.includes(hashTab) ? hashTab : 'info';
+
+    activateTab(initialTab);
 </script>
 @endsection

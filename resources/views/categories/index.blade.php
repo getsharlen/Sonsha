@@ -46,26 +46,4 @@
         </div>
     </section>
 </div>
-
-<style>
-    .glass-panel {
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        background: rgba(255, 255, 255, 0.06);
-        backdrop-filter: blur(10px);
-    }
-
-    .field-input {
-        border-radius: 0.9rem;
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        background: rgba(15, 23, 42, 0.72);
-        padding: 0.7rem 0.9rem;
-        color: #e2e8f0;
-    }
-
-    .field-input:focus {
-        outline: none;
-        border-color: rgba(236, 72, 153, 0.65);
-        box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.2);
-    }
-</style>
 @endsection

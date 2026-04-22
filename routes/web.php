@@ -55,5 +55,6 @@ Route::middleware('auth')->group(function () {
     Route::post('/borrowings/{borrowing}/return', [BorrowingController::class, 'returnBorrowing']);
 
     Route::get('/reports/technical', [TechnicalReportController::class, 'preview'])->middleware('role:admin,petugas');
+    Route::get('/reports/technical/excel', [TechnicalReportController::class, 'exportExcel'])->middleware('role:admin,petugas');
     Route::get('/reports/technical/pdf', [TechnicalReportController::class, 'download'])->middleware('role:admin,petugas');
 });

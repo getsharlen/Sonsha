@@ -38,7 +38,7 @@ class DashboardController extends Controller
             return view('pages.home-user', compact('featuredAssets', 'categories', 'stats'));
         }
 
-        $recentLogs = ActivityLog::with('user')->latest()->limit(8)->get();
+        $recentLogs = ActivityLog::with('user')->latest()->limit(12)->get();
 
         $summary = [
             'users' => User::count(),

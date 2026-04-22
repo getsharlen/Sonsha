@@ -46,8 +46,6 @@
                 </div>
             </div>
 
-            <input name="image_url" value="{{ old('image_url') }}" placeholder="Opsional: URL gambar eksternal" class="field-input">
-
             <button class="rounded-2xl bg-gradient-to-r from-pink-500 to-rose-600 px-4 py-3 font-semibold text-white transition hover:brightness-110">Simpan</button>
         </form>
     </section>
@@ -112,7 +110,7 @@
                                     <div>
                                         <p>Kode: {{ $asset->code }} | Kondisi: {{ $asset->condition }} | Brand: {{ $asset->brand ?: '-' }}</p>
                                         <p class="mt-1">Deskripsi: {{ $asset->description ?: '-' }}</p>
-                                        <p class="mt-1 break-all">Sumber gambar: {{ $asset->image_url ?: '-' }}</p>
+                                        <p class="mt-1">Gambar upload: {{ $asset->image_source ? 'Tersedia' : '-' }}</p>
                                     </div>
                                 </div>
                             </td>
@@ -140,8 +138,6 @@
                                         <option value="rusak" @selected($asset->condition === 'rusak')>Rusak</option>
                                         <option value="maintenance" @selected($asset->condition === 'maintenance')>Maintenance</option>
                                     </select>
-
-                                    <input name="image_url" value="{{ $asset->getRawOriginal('image_url') }}" placeholder="URL gambar eksternal" class="field-input text-xs">
 
                                     <div class="asset-edit-dropzone cursor-pointer rounded-xl border border-dashed border-pink-300/35 bg-slate-900/35 px-3 py-4 md:col-span-2" data-target="asset-image-file-edit-{{ $asset->id }}" data-filename="asset-image-filename-edit-{{ $asset->id }}">
                                         <input id="asset-image-file-edit-{{ $asset->id }}" name="image_file" type="file" accept="image/png,image/jpeg,image/jpg,image/webp" class="hidden">
@@ -232,26 +228,4 @@
         });
     })();
 </script>
-
-<style>
-    .field-input {
-        border-radius: 0.9rem;
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        background: rgba(15, 23, 42, 0.72);
-        padding: 0.7rem 0.9rem;
-        color: #e2e8f0;
-    }
-
-    .field-input:focus {
-        outline: none;
-        border-color: rgba(236, 72, 153, 0.65);
-        box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.2);
-    }
-
-    .glass-panel {
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        background: rgba(255, 255, 255, 0.06);
-        backdrop-filter: blur(10px);
-    }
-</style>
 @endsection

@@ -1,76 +1,116 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="utf-8">
-    <title>Laporan Teknis Peminjaman Fashion</title>
-    <style>
-        body { font-family: DejaVu Sans, sans-serif; color: #0f172a; font-size: 12px; line-height: 1.5; }
-        h1, h2, h3 { margin: 0 0 10px; }
-        .section { margin-bottom: 22px; }
-        .box { border: 1px solid #cbd5e1; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
-        table { width: 100%; border-collapse: collapse; }
-        th, td { border: 1px solid #cbd5e1; padding: 8px; vertical-align: top; }
-        th { background: #e2e8f0; }
-        .small { font-size: 10px; color: #475569; }
-    </style>
-</head>
-<body>
-    <h1>Laporan Teknis Proyek Peminjaman Barang Fashion</h1>
-    <p class="small">Dokumen ringkas untuk deliverable UKK. Project stack: Laravel fullstack dengan view dinamis, analytics, dan denda otomatis.</p>
+@extends('layouts.admin')
 
-    <div class="section">
-        <h2>1. Daftar Fitur Berdasarkan Level Pengguna</h2>
-        <div class="box">
-            <strong>Admin</strong><br>
-            Login/logout, CRUD user, alat, kategori, peminjaman, pengembalian, monitoring log, analytics dashboard, laporan, dan pengelolaan saldo/denda.
+@section('content')
+<div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div class="glass-panel rounded-2xl p-4">
+        <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Total Log</p>
+        <p class="mt-2 text-2xl font-semibold text-white">{{ number_format($summary['activity_logs']) }}</p>
+    </div>
+    <div class="glass-panel rounded-2xl p-4">
+        <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Total Riwayat</p>
+        <p class="mt-2 text-2xl font-semibold text-white">{{ number_format($summary['borrowing_history']) }}</p>
+    </div>
+    <div class="glass-panel rounded-2xl p-4">
+        <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Sedang Aktif</p>
+        <p class="mt-2 text-2xl font-semibold text-white">{{ number_format($summary['active_borrowings']) }}</p>
+    </div>
+    <div class="glass-panel rounded-2xl p-4">
+        <p class="text-xs uppercase tracking-[0.2em] text-slate-400">Sudah Selesai</p>
+        <p class="mt-2 text-2xl font-semibold text-white">{{ number_format($summary['returned_borrowings']) }}</p>
+    </div>
+</div>
+
+<div class="mt-6 grid gap-6 xl:grid-cols-2">
+    <section class="glass-panel rounded-3xl p-5">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
+            <div>
+                <h3 class="text-lg font-semibold">Laporan Log Aktivitas</h3>
+                <p class="text-xs text-slate-400">Menampilkan 50 log terbaru aktivitas sistem.</p>
+            </div>
+            <a href="/reports/technical/excel?type=activity-logs" class="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-3 py-2 text-xs font-semibold text-white transition hover:brightness-110">
+                Export Excel
+            </a>
         </div>
-        <div class="box">
-            <strong>Petugas</strong><br>
-            Login/logout, melihat alat operasional, menyetujui peminjaman, memantau pengembalian, dan membantu pelaporan.
+
+        <div class="mt-4 max-h-[28rem] overflow-auto rounded-xl border border-white/10">
+            <table class="min-w-full text-left text-xs">
+                <thead class="bg-slate-950/80 text-slate-300">
+                    <tr>
+                        <th class="px-3 py-2">Tanggal</th>
+                        <th class="px-3 py-2">User</th>
+                        <th class="px-3 py-2">Modul</th>
+                        <th class="px-3 py-2">Aksi</th>
+                        <th class="px-3 py-2">Deskripsi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($activityLogs as $log)
+                        <tr class="border-t border-white/10 bg-slate-950/35 align-top">
+                            <td class="px-3 py-2 text-slate-300">{{ optional($log->created_at)->format('d M Y H:i') }}</td>
+                            <td class="px-3 py-2 text-white">{{ $log->user?->name ?? '-' }}</td>
+                            <td class="px-3 py-2 text-slate-300">{{ $log->module }}</td>
+                            <td class="px-3 py-2 text-pink-300">{{ $log->action }}</td>
+                            <td class="px-3 py-2 text-slate-300">{{ $log->description }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="5" class="px-3 py-6 text-center text-slate-400">Belum ada data log aktivitas.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
         </div>
-        <div class="box">
-            <strong>Peminjam</strong><br>
-            Login/logout, melihat daftar alat, mengajukan peminjaman, mengembalikan alat, dan memantau saldo/denda.
+    </section>
+
+    <section class="glass-panel rounded-3xl p-5">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
+            <div>
+                <h3 class="text-lg font-semibold">Laporan History Penyewaan</h3>
+                <p class="text-xs text-slate-400">Menampilkan 50 transaksi penyewaan terbaru.</p>
+            </div>
+            <a href="/reports/technical/excel?type=borrowing-history" class="rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 px-3 py-2 text-xs font-semibold text-white transition hover:brightness-110">
+                Export Excel
+            </a>
         </div>
-    </div>
 
-    <div class="section">
-        <h2>2. Minimum Aspek Teknis</h2>
-        <table>
-            <tr><th>Aspek</th><th>Implementasi</th></tr>
-            <tr><td>Metode</td><td>Prototype / Waterfall sederhana</td></tr>
-            <tr><td>Basis Data</td><td>ERD relasional untuk users, categories, assets, borrowings, borrowing_items, activity_logs, fine_payments.</td></tr>
-            <tr><td>SQL</td><td>Menyediakan trigger, stored procedure, function, dan transaksi commit/rollback pada file .sql.</td></tr>
-            <tr><td>Optimasi</td><td>Pagination, limit pada query dashboard, dan minimasi looping yang tidak perlu.</td></tr>
-            <tr><td>Flow</td><td>Login, peminjaman, pengembalian, serta perhitungan denda didokumentasikan sebagai alur sistem.</td></tr>
-        </table>
-    </div>
+        <div class="mt-4 max-h-[28rem] overflow-auto rounded-xl border border-white/10">
+            <table class="min-w-full text-left text-xs">
+                <thead class="bg-slate-950/80 text-slate-300">
+                    <tr>
+                        <th class="px-3 py-2">Kode</th>
+                        <th class="px-3 py-2">Peminjam</th>
+                        <th class="px-3 py-2">Status</th>
+                        <th class="px-3 py-2">Jatuh Tempo</th>
+                        <th class="px-3 py-2">Kembali</th>
+                        <th class="px-3 py-2">Qty</th>
+                        <th class="px-3 py-2">Denda</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @forelse($borrowingHistory as $borrowing)
+                        <tr class="border-t border-white/10 bg-slate-950/35">
+                            <td class="px-3 py-2 text-white">{{ $borrowing->borrowing_code }}</td>
+                            <td class="px-3 py-2 text-slate-300">{{ $borrowing->user?->name ?? '-' }}</td>
+                            <td class="px-3 py-2 text-pink-300">{{ ucfirst($borrowing->status) }}</td>
+                            <td class="px-3 py-2 text-slate-300">{{ optional($borrowing->due_at)->format('d M Y') ?? '-' }}</td>
+                            <td class="px-3 py-2 text-slate-300">{{ optional($borrowing->returned_at)->format('d M Y H:i') ?? '-' }}</td>
+                            <td class="px-3 py-2 text-slate-300">{{ $borrowing->items->sum('quantity') }}</td>
+                            <td class="px-3 py-2 text-slate-300">Rp {{ number_format((float) $borrowing->total_fine, 0, ',', '.') }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="7" class="px-3 py-6 text-center text-slate-400">Belum ada history penyewaan.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
 
-    <div class="section">
-        <h2>3. Dashboard Analytics</h2>
-        <p>Admin melihat grafik tren peminjaman per bulan dan daftar alat paling sering dipinjam berdasarkan tabel borrowings dan borrowing_items.</p>
-    </div>
-
-    <div class="section">
-        <h2>4. Manajemen Denda Otomatis & Saldo</h2>
-        <p>Jika pengembalian terlambat, sistem menghitung denda otomatis. Saldo virtual user dipakai untuk mockup e-wallet. Status user dapat dikunci jika denda belum lunas.</p>
-    </div>
-
-    <div class="section">
-        <h2>5. Test Case Minimum</h2>
-        <table>
-            <tr><th>No</th><th>Skenario</th><th>Hasil yang Diharapkan</th></tr>
-            <tr><td>1</td><td>Login user</td><td>User masuk sesuai role dan diarahkan ke dashboard.</td></tr>
-            <tr><td>2</td><td>Penambahan data alat</td><td>Data alat tersimpan dan tampil di daftar alat.</td></tr>
-            <tr><td>3</td><td>Proses peminjaman</td><td>Permintaan dibuat, disetujui, dan stok berkurang.</td></tr>
-            <tr><td>4</td><td>Pengembalian dengan denda</td><td>Denda dihitung otomatis, saldo terpotong, dan status user menyesuaikan.</td></tr>
-            <tr><td>5</td><td>Pemeriksaan privilege</td><td>Role tidak berwenang ditolak saat akses halaman khusus.</td></tr>
-        </table>
-    </div>
-
-    <div class="section">
-        <h2>6. Deliverables</h2>
-        <p>Kode program tersedia dalam folder proyek Laravel, database disediakan dalam file .sql, dokumentasi teknis dirangkum pada laporan ini, dan hasil evaluasi dapat ditulis sebagai lampiran akhir.</p>
-    </div>
-</body>
-</html>
+<div class="mt-6 flex flex-wrap gap-3">
+    <a href="/reports/technical/pdf" class="rounded-xl border border-white/20 bg-white/5 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:bg-white/10">
+        Download Dokumen Teknis (PDF)
+    </a>
+</div>
+@endsection

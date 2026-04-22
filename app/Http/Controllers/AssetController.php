@@ -32,15 +32,12 @@ class AssetController extends Controller
             'condition' => ['required', 'in:baik,rusak,maintenance'],
             'rent_fee' => ['required', 'numeric', 'min:0'],
             'description' => ['nullable', 'string'],
-            'image_url' => ['nullable', 'string', 'max:2048'],
             'image_file' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
         ]);
 
-        $imagePath = !empty($data['image_url']) ? trim((string) $data['image_url']) : null;
-
-        if ($request->hasFile('image_file')) {
-            $imagePath = $request->file('image_file')->store('assets', 'public');
-        }
+        $imagePath = $request->hasFile('image_file')
+            ? $request->file('image_file')->store('assets', 'public')
+            : null;
 
         $asset = Asset::create([
             'category_id' => $data['category_id'],
@@ -77,7 +74,6 @@ class AssetController extends Controller
             'condition' => ['required', 'in:baik,rusak,maintenance'],
             'rent_fee' => ['required', 'numeric', 'min:0'],
             'description' => ['nullable', 'string'],
-            'image_url' => ['nullable', 'string', 'max:2048'],
             'image_file' => ['nullable', 'image', 'mimes:jpg,jpeg,png,webp', 'max:2048'],
             'remove_image' => ['nullable', 'boolean'],
         ]);
@@ -101,8 +97,6 @@ class AssetController extends Controller
         } elseif ($request->hasFile('image_file')) {
             $this->deleteLocalImageIfExists($currentImage);
             $payload['image_url'] = $request->file('image_file')->store('assets', 'public');
-        } elseif (array_key_exists('image_url', $data)) {
-            $payload['image_url'] = !empty($data['image_url']) ? trim((string) $data['image_url']) : null;
         }
 
         $asset->update($payload);
@@ -141,17 +135,12 @@ class AssetController extends Controller
 
     private function deleteLocalImageIfExists(?string $imagePath): void
     {
-        if (! $imagePath || $this->isExternalImagePath($imagePath)) {
+        if (! $imagePath) {
             return;
         }
 
         if (Storage::disk('public')->exists($imagePath)) {
             Storage::disk('public')->delete($imagePath);
         }
-    }
-
-    private function isExternalImagePath(string $imagePath): bool
-    {
-        return Str::startsWith($imagePath, ['http://', 'https://', '/']);
     }
 }

@@ -48,8 +48,11 @@
 
 <div class="mt-6 grid gap-6 xl:grid-cols-2">
     <section class="glass-panel rounded-3xl p-5">
-        <h3 class="text-lg font-semibold">Aktivitas Terbaru</h3>
-        <div class="mt-4 space-y-3 text-sm">
+        <div class="flex items-center justify-between gap-3">
+            <h3 class="text-lg font-semibold">Aktivitas Terbaru</h3>
+            <p class="text-xs text-slate-400">Menampilkan {{ $recentLogs->count() }} data terbaru</p>
+        </div>
+        <div class="mt-4 max-h-[26rem] space-y-3 overflow-y-auto pr-1 text-sm">
             @foreach($recentLogs as $log)
                 <div class="rounded-2xl bg-slate-950/60 p-4">
                     <p class="font-medium text-white">{{ $log->module }} - {{ $log->action }}</p>
@@ -102,26 +105,4 @@
         },
     });
 </script>
-
-<style>
-    .glass-panel {
-        border: 1px solid rgba(255, 255, 255, 0.12);
-        background: rgba(255, 255, 255, 0.06);
-        backdrop-filter: blur(10px);
-    }
-
-    .field-input {
-        border-radius: 0.9rem;
-        border: 1px solid rgba(255, 255, 255, 0.14);
-        background: rgba(15, 23, 42, 0.72);
-        padding: 0.7rem 0.9rem;
-        color: #e2e8f0;
-    }
-
-    .field-input:focus {
-        outline: none;
-        border-color: rgba(236, 72, 153, 0.65);
-        box-shadow: 0 0 0 2px rgba(236, 72, 153, 0.2);
-    }
-</style>
 @endsection

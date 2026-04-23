@@ -124,7 +124,12 @@
         const password = document.querySelector('input[name="password"]').value;
         if (!password.trim()) {
             e.preventDefault();
-            alert('Silakan masukkan password Anda');
+            Swal.fire({
+                icon: 'error',
+                title: 'Harap Isi Password',
+                text: 'Silakan masukkan password Anda',
+                confirmButtonText: 'Oke'
+            });
         }
     });
 </script>

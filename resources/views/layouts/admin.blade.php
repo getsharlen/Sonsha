@@ -48,9 +48,11 @@
                 <a href="/dashboard" class="block rounded-xl px-4 py-3 transition {{ request()->is('dashboard*') ? 'nav-item-active' : 'hover:bg-white/10' }}">
                     <i class="fas fa-chart-line mr-2"></i> Dashboard
                 </a>
+                @if(auth()->user()->role === 'admin')
                 <a href="/assets" class="block rounded-xl px-4 py-3 transition {{ request()->is('assets*') ? 'nav-item-active' : 'hover:bg-white/10' }}">
                     <i class="fas fa-box mr-2"></i> Manajemen Alat
                 </a>
+                @endif
                 <a href="/borrowings" class="block rounded-xl px-4 py-3 transition {{ request()->is('borrowings*') ? 'nav-item-active' : 'hover:bg-white/10' }}">
                     <i class="fas fa-handshake mr-2"></i> Peminjaman
                 </a>
@@ -58,6 +60,8 @@
                 <a href="/categories" class="block rounded-xl px-4 py-3 transition {{ request()->is('categories*') ? 'nav-item-active' : 'hover:bg-white/10' }}">
                     <i class="fas fa-tags mr-2"></i> Kategori
                 </a>
+                @endif
+                @if(auth()->user()->role === 'admin' || auth()->user()->role === 'petugas')
                 <a href="/reports/technical" class="block rounded-xl px-4 py-3 transition {{ request()->is('reports/technical*') ? 'nav-item-active' : 'hover:bg-white/10' }}">
                     <i class="fas fa-file-alt mr-2"></i> Laporan
                 </a>
@@ -112,5 +116,29 @@
             @yield('content')
         </main>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('form.confirm-action').forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                    event.preventDefault();
+                    var message = form.dataset.confirm || 'Apakah Anda yakin ingin melanjutkan aksi ini?';
+                    Swal.fire({
+                        title: 'Konfirmasi',
+                        text: message,
+                        icon: 'warning',
+                        showCancelButton: true,
+                        confirmButtonText: 'Ya',
+                        cancelButtonText: 'Batal',
+                        reverseButtons: true
+                    }).then(function (result) {
+                        if (result.isConfirmed) {
+                            form.submit();
+                        }
+                    });
+                });
+            });
+        });
+    </script>
 </body>
 </html>

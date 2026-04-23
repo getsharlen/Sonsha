@@ -17,8 +17,23 @@ use Illuminate\View\View;
 
 class BorrowingController extends Controller
 {
+    private function syncAssetStock(Asset $asset): void
+    {
+        $borrowedQty = BorrowingItem::query()
+            ->where('asset_id', $asset->id)
+            ->where('status', 'borrowed')
+            ->sum('quantity');
+
+        $available = max(0, (int) $asset->stock_total - (int) $borrowedQty);
+        if ((int) $asset->stock_available !== $available) {
+            $asset->update(['stock_available' => $available]);
+        }
+    }
+
     public function index(): View
     {
+        Asset::synchronizeStockAvailability();
+
         $query = Borrowing::with(['user', 'items.asset', 'approver'])->latest();
         $user = Auth::user();
 
@@ -26,7 +41,7 @@ class BorrowingController extends Controller
             $query->where('user_id', Auth::id());
         }
 
-        $borrowings = $query->paginate(10);
+        $borrowings = $query->paginate(3);
         $assets = Asset::where('stock_available', '>', 0)->orderBy('name')->get();
         $users = User::where('role', 'peminjam')->orderBy('name')->get();
 
@@ -105,7 +120,9 @@ class BorrowingController extends Controller
                 'status' => 'requested',
             ]);
 
-            $asset = Asset::findOrFail($data['asset_id']);
+            $asset = Asset::query()->lockForUpdate()->findOrFail($data['asset_id']);
+            $this->syncAssetStock($asset);
+            $asset->refresh();
             if ($asset->stock_available < $data['quantity']) {
                 throw ValidationException::withMessages([
                     'quantity' => 'Stok alat tidak mencukupi untuk jumlah pinjam ini.',
@@ -145,13 +162,17 @@ class BorrowingController extends Controller
             $borrowing->load('items.asset');
 
             foreach ($borrowing->items as $item) {
-                if ($item->asset->stock_available < $item->quantity) {
+                $asset = Asset::query()->lockForUpdate()->findOrFail($item->asset_id);
+                $this->syncAssetStock($asset);
+                $asset->refresh();
+
+                if ($asset->stock_available < $item->quantity) {
                     abort(422, 'Stok alat '.$item->asset->name.' tidak mencukupi.');
                 }
 
-                $item->asset->decrement('stock_available', $item->quantity);
                 $item->status = 'borrowed';
                 $item->save();
+                $this->syncAssetStock($asset);
             }
 
             $borrowing->update([
@@ -179,15 +200,17 @@ class BorrowingController extends Controller
             return back()->with('status', 'Peminjaman ini tidak dapat ditolak lagi.');
         }
 
-        $borrowing->update(['status' => 'declined']);
+        DB::transaction(function () use ($borrowing) {
+            $borrowing->update(['status' => 'declined']);
 
-        ActivityLog::create([
-            'user_id' => Auth::id(),
-            'module' => 'borrowing',
-            'action' => 'decline',
-            'description' => 'Peminjaman ditolak petugas/admin.',
-            'payload' => ['borrowing_code' => $borrowing->borrowing_code],
-        ]);
+            ActivityLog::create([
+                'user_id' => Auth::id(),
+                'module' => 'borrowing',
+                'action' => 'decline',
+                'description' => 'Peminjaman ditolak petugas/admin.',
+                'payload' => ['borrowing_code' => $borrowing->borrowing_code],
+            ]);
+        });
 
         return back()->with('status', 'Peminjaman ditolak.');
     }
@@ -209,10 +232,10 @@ class BorrowingController extends Controller
             $fineAmount = $daysLate * 5000;
 
             foreach ($borrowing->items as $item) {
-                $item->asset->increment('stock_available', $item->quantity);
                 $item->status = 'returned';
                 $item->fine_amount = $fineAmount;
                 $item->save();
+                $this->syncAssetStock($item->asset);
             }
 
             if ($fineAmount > 0) {

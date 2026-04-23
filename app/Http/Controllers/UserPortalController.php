@@ -19,6 +19,8 @@ class UserPortalController extends Controller
 {
     public function catalog(Request $request): View
     {
+        Asset::synchronizeStockAvailability();
+
         $assets = Asset::with('category')
             ->where(function ($query) use ($request) {
                 if ($request->filled('search')) {
@@ -60,7 +62,9 @@ class UserPortalController extends Controller
 
     public function show(Asset $asset): View
     {
-        $asset->load('category');
+        Asset::synchronizeStockAvailability();
+
+        $asset = Asset::with('category')->findOrFail($asset->id);
 
         $relatedAssets = Asset::with('category')
             ->where('category_id', $asset->category_id)

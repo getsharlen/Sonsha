@@ -86,7 +86,7 @@
                                 <div class="flex flex-wrap gap-2">
                                     <button type="button" onclick="document.getElementById('asset-detail-{{ $asset->id }}').classList.toggle('hidden')" class="rounded-lg bg-white/10 px-3 py-1 text-xs hover:bg-white/20">Detail</button>
                                     <button type="button" onclick="document.getElementById('asset-edit-{{ $asset->id }}').classList.toggle('hidden')" class="rounded-lg bg-sky-500/80 px-3 py-1 text-xs text-white hover:bg-sky-500">Edit</button>
-                                    <form method="POST" action="/assets/{{ $asset->id }}" onsubmit="return confirm('Hapus data alat ini?')">
+                                    <form method="POST" action="/assets/{{ $asset->id }}" class="confirm-action" data-confirm="Hapus data alat ini?">
                                         @csrf
                                         @method('DELETE')
                                         <button class="rounded-lg bg-rose-500/80 px-3 py-1 text-xs text-white hover:bg-rose-500">Hapus</button>

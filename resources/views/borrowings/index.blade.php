@@ -36,7 +36,7 @@
                             <p class="text-slate-300">{{ $borrowing->user?->name }} - {{ $borrowing->status }}</p>
                         </div>
                         @if(in_array(auth()->user()->role, ['admin', 'petugas'], true) && $borrowing->status === 'requested')
-                            <form method="POST" action="/borrowings/{{ $borrowing->id }}/approve">
+                            <form method="POST" action="/borrowings/{{ $borrowing->id }}/approve" class="confirm-action" data-confirm="Setujui peminjaman ini?">
                                 @csrf
                                 <button class="rounded-xl bg-emerald-500 px-3 py-2 text-xs font-semibold text-white">Approve</button>
                             </form>
@@ -52,7 +52,7 @@
                     </div>
                     <p class="mt-1 text-slate-400">Denda: Rp {{ number_format($borrowing->total_fine, 0, ',', '.') }}</p>
                     @if(in_array($borrowing->status, ['approved', 'borrowed'], true))
-                        <form class="mt-3" method="POST" action="/borrowings/{{ $borrowing->id }}/return">
+                        <form class="mt-3 confirm-action" method="POST" action="/borrowings/{{ $borrowing->id }}/return" data-confirm="Proses pengembalian peminjaman ini?">
                             @csrf
                             <button class="rounded-xl bg-pink-500 px-3 py-2 text-xs font-semibold text-white">Proses Pengembalian</button>
                         </form>

@@ -173,9 +173,9 @@
                             <i class="fas fa-shopping-bag"></i>
                             Pesan Sekarang
                         </button>
-                        <button type="button" class="btn-luxury glass-hover glass px-6 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2">
+                        <!-- <button type="button" class="btn-luxury glass-hover glass px-6 py-3 rounded-lg font-semibold transition flex items-center justify-center gap-2">
                             <i class="fas fa-heart"></i>
-                        </button>
+                        </button> -->
                     </div>
                 </form>
             @else
@@ -196,14 +196,10 @@
                         <i class="fas fa-check text-pink-300 mt-1 flex-shrink-0"></i>
                         <span>Harga sudah termasuk asuransi dasar</span>
                     </li>
-                    <li class="flex gap-3">
-                        <i class="fas fa-check text-pink-300 mt-1 flex-shrink-0"></i>
-                        <span>Pengiriman gratis untuk pesanan di atas Rp 500K</span>
-                    </li>
-                    <li class="flex gap-3">
+                    <!-- <li class="flex gap-3">
                         <i class="fas fa-check text-pink-300 mt-1 flex-shrink-0"></i>
                         <span>Pengembalian dalam 48 jam sebelum batas waktu</span>
-                    </li>
+                    </li> -->
                     <li class="flex gap-3">
                         <i class="fas fa-check text-pink-300 mt-1 flex-shrink-0"></i>
                         <span>Perlindungan pembeli 100% terjamin</span>

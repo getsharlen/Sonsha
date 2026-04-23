@@ -87,7 +87,7 @@
             <div class="glass p-6 rounded-2xl">
                 <div class="flex flex-wrap gap-2">
                     @if($borrowing->status === 'requested')
-                        <form action="/borrowings/{{ $borrowing->id }}/cancel" method="POST" class="inline">
+                        <form action="/borrowings/{{ $borrowing->id }}/cancel" method="POST" class="inline confirm-action" data-confirm="Batalkan pengajuan peminjaman ini?">
                             @csrf
                             <button type="submit" class="rounded-lg bg-red-500/20 border border-red-400/30 text-red-300 px-4 py-2 text-sm font-semibold">
                                 Batalkan
@@ -96,7 +96,7 @@
                     @endif
 
                     @if(in_array($borrowing->status, ['borrowed', 'late', 'approved'], true) && !$borrowing->returned_at)
-                        <form action="/borrowings/{{ $borrowing->id }}/return" method="POST" class="inline">
+                        <form action="/borrowings/{{ $borrowing->id }}/return" method="POST" class="inline confirm-action" data-confirm="Konfirmasi pengembalian barang?">
                             @csrf
                             <button type="submit" class="rounded-lg bg-blue-500/20 border border-blue-400/30 text-blue-300 px-4 py-2 text-sm font-semibold">
                                 Kembalikan Sekarang

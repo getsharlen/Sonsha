@@ -18,6 +18,8 @@ class DashboardController extends Controller
 {
     public function index(): View
     {
+        Asset::synchronizeStockAvailability();
+
         $user = Auth::user();
 
         if ($user->role === 'peminjam') {
@@ -74,7 +76,10 @@ class DashboardController extends Controller
 
             $assets = Asset::with('category')->orderBy('name')->get();
 
-            return view('dashboard-petugas', compact('user', 'pendingBorrowings', 'assets'));
+            // Get activity logs and borrowing history for reports
+            $recentActivityLogs = ActivityLog::with('user')->latest()->limit(20)->get();
+
+            return view('dashboard-petugas', compact('user', 'pendingBorrowings', 'assets', 'recentActivityLogs'));
         }
 
         return view('dashboard', compact('user', 'summary', 'recentLogs', 'monthlyBorrowings', 'topAssets', 'pendingFines'));

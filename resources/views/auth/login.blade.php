@@ -6,6 +6,19 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Login Sonsha</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .login-right-side {
+            /* Layer 1: Overlay Gradient (Tetap dipertahankan agar teks tetap terbaca) */
+            /* Layer 2: Gambar dari Storage Laravel */
+            background: linear-gradient(135deg, rgba(244, 114, 182, 0.4) 0%, rgba(236, 72, 153, 0.3) 25%, rgba(219, 39, 119, 0.2) 50%, rgba(191, 33, 103, 0.15) 75%, #020617 100%),
+                        url("{{ asset('storage/assets/fashion.jpg') }}");
+               
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
+    </style>
 </head>
 <body class="min-h-screen bg-[#020617] text-white">
     <div class="grid min-h-screen lg:grid-cols-2">
@@ -19,17 +32,17 @@
                     @csrf
                     <div>
                         <label class="mb-2 block text-sm">Email</label>
-                        <input name="email" value="{{ old('email') }}" class="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 outline-none focus:border-pink-400" type="email">
+                        <input name="email" value="{{ old('email') }}" class="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 outline-none focus:border-pink-400" type="email" required>
                         @error('email')<p class="mt-2 text-sm text-rose-300">{{ $message }}</p>@enderror
                     </div>
                     <div>
                         <label class="mb-2 block text-sm">Password</label>
-                        <input name="password" class="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 outline-none focus:border-pink-400" type="password">
+                        <input name="password" class="w-full rounded-2xl border border-white/10 bg-slate-950/80 px-4 py-3 outline-none focus:border-pink-400" type="password" required>
                     </div>
-                    <button class="w-full rounded-2xl bg-pink-500 px-4 py-3 font-semibold">Login</button>
+                    <button class="w-full rounded-2xl bg-gradient-to-r from-pink-500 to-rose-600 px-4 py-3 font-semibold transition hover:brightness-110">Login</button>
                 </form>
 
-                <p class="mt-6 text-sm text-slate-300">Belum punya akun? <a class="text-pink-300 underline" href="/register">Daftar</a></p>
+                <p class="mt-6 text-sm text-slate-300">Belum punya akun? <a class="text-pink-300 underline hover:text-pink-200" href="/register">Daftar</a></p>
                 <div class="mt-6 rounded-2xl bg-slate-950/70 p-4 text-sm text-slate-300">
                     <p class="font-medium text-white">Akun demo</p>
                     <p>admin@sonsha.test / password</p>
@@ -38,16 +51,8 @@
                 </div>
             </div>
         </div>
-        <div class="hidden bg-[radial-gradient(circle_at_top_right,_rgba(244,114,182,0.3),transparent_30%),linear-gradient(135deg,#111827_0%,#0f172a_45%,#020617_100%)] p-12 lg:flex lg:flex-col lg:justify-between">
-            <div>
-                <h2 class="text-4xl font-semibold leading-tight">Peminjaman fashion dengan analytics, saldo virtual, dan kontrol role.</h2>
-                <p class="mt-4 max-w-xl text-slate-300">Project ini disiapkan untuk kebutuhan UKK dengan view dinamis, dashboard grafik, dan dokumen teknis yang bisa diekspor ke PDF.</p>
-            </div>
-            <div class="grid grid-cols-3 gap-4 text-sm">
-                <div class="rounded-3xl border border-white/10 bg-white/5 p-4">3 Role</div>
-                <div class="rounded-3xl border border-white/10 bg-white/5 p-4">Dashboard Analytics</div>
-                <div class="rounded-3xl border border-white/10 bg-white/5 p-4">Denda Otomatis</div>
-            </div>
+        <div class="login-right-side hidden lg:flex lg:flex-col lg:justify-between p-12">
+            
         </div>
     </div>
 </body>

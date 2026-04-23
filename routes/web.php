@@ -42,10 +42,10 @@ Route::middleware('auth')->group(function () {
     Route::put('/categories/{category}', [CategoryController::class, 'update'])->middleware('role:admin');
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->middleware('role:admin');
 
-    Route::get('/assets', [AssetController::class, 'index'])->middleware('role:admin,petugas');
-    Route::post('/assets', [AssetController::class, 'store'])->middleware('role:admin,petugas');
-    Route::put('/assets/{asset}', [AssetController::class, 'update'])->middleware('role:admin,petugas');
-    Route::delete('/assets/{asset}', [AssetController::class, 'destroy'])->middleware('role:admin,petugas');
+    Route::get('/assets', [AssetController::class, 'index'])->middleware('role:admin');
+    Route::post('/assets', [AssetController::class, 'store'])->middleware('role:admin');
+    Route::put('/assets/{asset}', [AssetController::class, 'update'])->middleware('role:admin');
+    Route::delete('/assets/{asset}', [AssetController::class, 'destroy'])->middleware('role:admin');
 
     Route::get('/borrowings', [BorrowingController::class, 'index']);
     Route::get('/borrowings/{borrowing}', [BorrowingController::class, 'show']);
@@ -53,9 +53,9 @@ Route::middleware('auth')->group(function () {
     Route::post('/borrowings/{borrowing}/cancel', [BorrowingController::class, 'cancel']);
     Route::post('/borrowings/{borrowing}/approve', [BorrowingController::class, 'approve'])->middleware('role:admin,petugas');
     Route::post('/borrowings/{borrowing}/decline', [BorrowingController::class, 'decline'])->middleware('role:admin,petugas');
-    Route::post('/borrowings/{borrowing}/return', [BorrowingController::class, 'returnBorrowing']);
+    Route::post('/borrowings/{borrowing}/return', [BorrowingController::class, 'returnBorrowing'])->middleware('role:admin,petugas');
 
-    Route::get('/reports/technical', [TechnicalReportController::class, 'preview'])->middleware('role:admin');
-    Route::get('/reports/technical/excel', [TechnicalReportController::class, 'exportExcel'])->middleware('role:admin');
+    Route::get('/reports/technical', [TechnicalReportController::class, 'preview'])->middleware('role:admin,petugas');
+    Route::get('/reports/technical/excel', [TechnicalReportController::class, 'exportExcel'])->middleware('role:admin,petugas');
     Route::get('/reports/technical/pdf', [TechnicalReportController::class, 'download'])->middleware('role:admin,petugas');
 });

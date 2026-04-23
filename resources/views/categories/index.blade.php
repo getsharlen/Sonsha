@@ -24,7 +24,7 @@
                         </div>
                         <div class="flex gap-2">
                             <button type="button" onclick="document.getElementById('edit-category-{{ $category->id }}').classList.toggle('hidden')" class="rounded-xl bg-sky-500 px-3 py-2 text-xs font-semibold text-white">Edit</button>
-                            <form method="POST" action="/categories/{{ $category->id }}" onsubmit="return confirm('Hapus kategori ini?')">
+                            <form method="POST" action="/categories/{{ $category->id }}" class="confirm-action" data-confirm="Hapus kategori ini?">
                                 @csrf
                                 @method('DELETE')
                                 <button class="rounded-xl bg-rose-500 px-3 py-2 text-xs font-semibold text-white">Hapus</button>

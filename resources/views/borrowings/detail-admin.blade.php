@@ -115,7 +115,7 @@
                 <h2 class="text-lg font-bold text-white mb-6">Tindakan</h2>
                 <div class="space-y-3">
                     @if($borrowing->status === 'requested')
-                        <form method="POST" action="/borrowings/{{ $borrowing->id }}/approve" class="inline-block w-full">
+                        <form method="POST" action="/borrowings/{{ $borrowing->id }}/approve" class="inline-block w-full confirm-action" data-confirm="Setujui peminjaman ini?">
                             @csrf
                             <button class="w-full bg-green-600 hover:bg-green-700 text-white px-6 py-3 rounded-lg font-semibold transition">
                                 <i class="fas fa-check mr-2"></i> Setujui Peminjaman
@@ -124,7 +124,7 @@
                     @endif
 
                     @if(in_array($borrowing->status, ['borrowed', 'late']))
-                        <form method="POST" action="/borrowings/{{ $borrowing->id }}/return" class="inline-block w-full">
+                        <form method="POST" action="/borrowings/{{ $borrowing->id }}/return" class="inline-block w-full confirm-action" data-confirm="Proses pengembalian peminjaman ini?">
                             @csrf
                             <button class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition">
                                 <i class="fas fa-undo mr-2"></i> Proses Pengembalian
@@ -133,7 +133,7 @@
                     @endif
 
                     @if($borrowing->status === 'requested')
-                        <form method="POST" action="/borrowings/{{ $borrowing->id }}" class="inline-block w-full" onsubmit="return confirm('Tolak peminjaman ini?');">
+                        <form method="POST" action="/borrowings/{{ $borrowing->id }}" class="inline-block w-full confirm-action" data-confirm="Tolak peminjaman ini?">
                             @csrf
                             @method('DELETE')
                             <button class="w-full bg-red-600/20 hover:bg-red-600/30 border border-red-500/30 text-red-300 px-6 py-3 rounded-lg font-semibold transition">

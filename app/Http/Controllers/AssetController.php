@@ -15,6 +15,8 @@ class AssetController extends Controller
 {
     public function index(): View
     {
+        Asset::synchronizeStockAvailability();
+
         $assets = Asset::with('category')->latest()->paginate(8);
         $categories = Category::orderBy('name')->get();
 
@@ -45,7 +47,7 @@ class AssetController extends Controller
             'name' => $data['name'],
             'brand' => $data['brand'] ?? null,
             'stock_total' => $data['stock_total'],
-            'stock_available' => $data['stock_available'],
+            'stock_available' => min((int) $data['stock_available'], (int) $data['stock_total']),
             'condition' => $data['condition'],
             'rent_fee' => $data['rent_fee'],
             'description' => $data['description'] ?? null,
@@ -83,11 +85,15 @@ class AssetController extends Controller
             'name' => $data['name'],
             'brand' => $data['brand'] ?? null,
             'stock_total' => $data['stock_total'],
-            'stock_available' => $data['stock_available'],
+            'stock_available' => min((int) $data['stock_available'], (int) $data['stock_total']),
             'condition' => $data['condition'],
             'rent_fee' => $data['rent_fee'],
             'description' => $data['description'] ?? null,
         ];
+
+        $borrowedQty = (int) $asset->items()->where('status', 'borrowed')->sum('quantity');
+        $maxAvailable = max(0, (int) $data['stock_total'] - $borrowedQty);
+        $payload['stock_available'] = min((int) $payload['stock_available'], $maxAvailable);
 
         $currentImage = $asset->getRawOriginal('image_url');
 

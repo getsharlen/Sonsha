@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>{{ $title ?? 'Admin Dashboard - Sonsha Fashion Rental' }}</title>
+    <title>{{ $title ?? 'Officer Dashboard - Sonsha Fashion Rental' }}</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
@@ -39,34 +39,23 @@
     <div class="mx-auto flex min-h-screen max-w-7xl gap-4 px-4 py-4 sm:px-6">
         <aside class="glass-card hidden w-72 shrink-0 rounded-2xl p-4 xl:block">
             <div class="mb-6 border-b border-white/10 pb-4">
-                <p class="text-xs uppercase tracking-[0.35em] text-pink-300">Sonsha Admin</p>
+                <p class="text-xs uppercase tracking-[0.35em] text-pink-300">Sonsha Officer</p>
                 <h1 class="mt-2 text-xl font-semibold">Fashion Rental System</h1>
-                <p class="mt-1 text-xs text-slate-300">Panel Administrasi</p>
+                <p class="mt-1 text-xs text-slate-300">Panel Petugas</p>
             </div>
 
             <nav class="space-y-2 text-sm">
                 <a href="/dashboard" class="block rounded-xl px-4 py-3 transition {{ request()->is('dashboard*') ? 'nav-item-active' : 'hover:bg-white/10' }}">
                     <i class="fas fa-chart-line mr-2"></i> Dashboard
                 </a>
-                <a href="/assets" class="block rounded-xl px-4 py-3 transition {{ request()->is('assets*') ? 'nav-item-active' : 'hover:bg-white/10' }}">
-                    <i class="fas fa-box mr-2"></i> Manajemen Alat
-                </a>
                 <a href="/borrowings" class="block rounded-xl px-4 py-3 transition {{ request()->is('borrowings*') ? 'nav-item-active' : 'hover:bg-white/10' }}">
-                    <i class="fas fa-handshake mr-2"></i> Peminjaman
+                    <i class="fas fa-handshake mr-2"></i> Peminjaman & Pengembalian
                 </a>
-                @if(auth()->user()->role === 'admin')
-                <a href="/categories" class="block rounded-xl px-4 py-3 transition {{ request()->is('categories*') ? 'nav-item-active' : 'hover:bg-white/10' }}">
-                    <i class="fas fa-tags mr-2"></i> Kategori
-                </a>
-                <a href="/reports/technical" class="block rounded-xl px-4 py-3 transition {{ request()->is('reports/technical*') ? 'nav-item-active' : 'hover:bg-white/10' }}">
-                    <i class="fas fa-file-alt mr-2"></i> Laporan
-                </a>
-                @endif
             </nav>
 
             <div class="mt-6 rounded-2xl border border-white/10 bg-slate-950/55 p-4 text-sm text-slate-300">
-                <p class="font-medium text-white">Admin Info</p>
-                <p class="mt-2">{{ auth()->user()->name ?? 'Administrator' }}</p>
+                <p class="font-medium text-white">Officer Info</p>
+                <p class="mt-2">{{ auth()->user()->name ?? 'Officer' }}</p>
                 <p class="text-xs">{{ auth()->user()->email }}</p>
                 <p class="mt-3 text-xs uppercase tracking-[0.2em] text-slate-400">Role</p>
                 <p>{{ ucfirst(auth()->user()->role) }}</p>

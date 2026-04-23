@@ -11,7 +11,7 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
             <div class="max-w-2xl">
                 <div class="mb-4 flex items-center gap-2">
-                    <span class="luxury-badge">Premium Collection 2024</span>
+                    <span class="luxury-badge">Premium Collection 2026</span>
                 </div>
                 <h1 class="text-5xl md:text-6xl font-black mb-4 leading-tight">
                     <span class="bg-gradient-to-r from-pink-300 via-pink-200 to-rose-300 bg-clip-text text-transparent">

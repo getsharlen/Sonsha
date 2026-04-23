@@ -337,7 +337,7 @@
                 </div>
             </div>
             <div class="border-t border-white/10 pt-6 flex justify-between items-center text-xs text-slate-400">
-                <p>&copy; 2024 Sonsha Fashion Rental. All rights reserved.</p>
+                <p>&copy; 2026 Sonsha Fashion Rental. All rights reserved.</p>
                 <div class="flex gap-4">
                     <a href="#" class="hover:text-pink-300 transition">Privacy</a>
                     <a href="#" class="hover:text-pink-300 transition">Terms</a>

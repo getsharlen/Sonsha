@@ -172,6 +172,26 @@ class BorrowingController extends Controller
         return back()->with('status', 'Peminjaman disetujui.');
     }
 
+    public function decline(Borrowing $borrowing): RedirectResponse
+    {
+        abort_unless(in_array(Auth::user()->role, ['admin', 'petugas'], true), 403);
+        if ($borrowing->status !== 'requested') {
+            return back()->with('status', 'Peminjaman ini tidak dapat ditolak lagi.');
+        }
+
+        $borrowing->update(['status' => 'declined']);
+
+        ActivityLog::create([
+            'user_id' => Auth::id(),
+            'module' => 'borrowing',
+            'action' => 'decline',
+            'description' => 'Peminjaman ditolak petugas/admin.',
+            'payload' => ['borrowing_code' => $borrowing->borrowing_code],
+        ]);
+
+        return back()->with('status', 'Peminjaman ditolak.');
+    }
+
     public function returnBorrowing(Borrowing $borrowing): RedirectResponse
     {
         abort_unless(Auth::user()->id === $borrowing->user_id || in_array(Auth::user()->role, ['admin', 'petugas'], true), 403);

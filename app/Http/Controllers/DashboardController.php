@@ -66,6 +66,17 @@ class DashboardController extends Controller
             ->where('status', 'pending')
             ->sum('amount');
 
+        if ($user->role === 'petugas') {
+            $pendingBorrowings = Borrowing::with(['user', 'items.asset'])
+                ->where('status', 'requested')
+                ->latest()
+                ->get();
+
+            $assets = Asset::with('category')->orderBy('name')->get();
+
+            return view('dashboard-petugas', compact('user', 'pendingBorrowings', 'assets'));
+        }
+
         return view('dashboard', compact('user', 'summary', 'recentLogs', 'monthlyBorrowings', 'topAssets', 'pendingFines'));
     }
 

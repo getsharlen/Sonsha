@@ -77,7 +77,7 @@
     @if(($borrowings ?? collect())->count() > 0)
         <div class="space-y-6" id="borrowingsList">
             @foreach($borrowings ?? [] as $borrowing)
-                <div class="glass-hover glass p-6 rounded-2xl group" data-status="{{ in_array($borrowing->status, ['borrowed', 'late', 'approved'], true) ? 'active' : ($borrowing->status === 'requested' ? 'pending' : ($borrowing->status === 'returned' ? 'returned' : 'other')) }}">
+                <div class="glass-hover glass p-6 rounded-2xl group" data-status="{{ in_array($borrowing->status, ['borrowed', 'late', 'approved', 'return_requested'], true) ? 'active' : ($borrowing->status === 'requested' ? 'pending' : ($borrowing->status === 'returned' ? 'returned' : 'other')) }}">
                     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
                         <!-- Booking Code & Date -->
                         <div>
@@ -120,6 +120,10 @@
                                     @elseif(in_array($borrowing->status, ['borrowed', 'late'], true))
                                         <div class="status-borrowed px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
                                             <i class="fas fa-handshake"></i> Dipinjam
+                                        </div>
+                                    @elseif($borrowing->status === 'return_requested')
+                                        <div class="status-pending px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                                            <i class="fas fa-camera"></i> Menunggu Verifikasi Return
                                         </div>
                                     @elseif($borrowing->status === 'returned')
                                         <div class="status-returned px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
@@ -181,12 +185,9 @@
                                 </button>
                             </form>
                         @elseif(in_array($borrowing->status, ['borrowed', 'late'], true) && !$borrowing->returned_at)
-                            <form action="/borrowings/{{ $borrowing->id }}/return" method="POST" class="inline">
-                                @csrf
-                                <button type="submit" class="btn-luxury bg-blue-500/20 hover:bg-blue-500/30 border border-blue-400/30 text-blue-300 px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2">
-                                    <i class="fas fa-undo"></i> Kembalikan
-                                </button>
-                            </form>
+                            <a href="/borrowings/{{ $borrowing->id }}" class="btn-luxury bg-blue-500/20 hover:bg-blue-500/30 border border-blue-400/30 text-blue-300 px-4 py-2 rounded-lg text-sm font-semibold transition flex items-center gap-2">
+                                <i class="fas fa-camera"></i> Ajukan Pengembalian
+                            </a>
                         @endif
 
                         @if($borrowing->pending_fine && $borrowing->pending_fine > 0)

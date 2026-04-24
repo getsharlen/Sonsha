@@ -41,22 +41,14 @@ class TechnicalReportController extends Controller
             abort(404);
         }
 
-        [$fileName, $headers, $rows] = $type === 'activity-logs'
-            ? $this->activityLogExportPayload()
-            : $this->borrowingHistoryExportPayload();
+        $fileName = $type === 'activity-logs'
+            ? 'laporan-activity-logs.xls'
+            : 'laporan-borrowing-history.xls';
 
-        return response()->streamDownload(function () use ($headers, $rows): void {
-            $output = fopen('php://output', 'wb');
-
-            fputcsv($output, $headers);
-
-            foreach ($rows as $row) {
-                fputcsv($output, $row);
-            }
-
-            fclose($output);
+        return response()->streamDownload(function () use ($type): void {
+            echo $this->buildExcelDocument($type);
         }, $fileName, [
-            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Type' => 'application/vnd.ms-excel; charset=UTF-8',
         ]);
     }
 
@@ -65,55 +57,86 @@ class TechnicalReportController extends Controller
         return Pdf::loadView('reports.technical-pdf')->download('laporan-teknis-peminjaman-fashion.pdf');
     }
 
-    private function activityLogExportPayload(): array
+    private function buildExcelDocument(string $type): string
     {
-        $headers = ['Tanggal', 'User', 'Module', 'Action', 'Deskripsi'];
+        $title = $type === 'activity-logs'
+            ? 'Laporan Activity Logs - Sonsha Fashion Rental'
+            : 'Laporan History Peminjaman - Sonsha Fashion Rental';
 
-        $rows = ActivityLog::with('user')
-            ->latest()
-            ->get()
-            ->map(fn (ActivityLog $log) => [
-                optional($log->created_at)->format('Y-m-d H:i:s'),
-                $log->user?->name ?? '-',
-                $log->module,
-                $log->action,
-                $log->description,
-            ]);
+        $rowsHtml = $type === 'activity-logs'
+            ? $this->buildActivityLogRows()
+            : $this->buildBorrowingHistoryRows();
 
-        return ['laporan-activity-logs.csv', $headers, $rows];
+        $headersHtml = $type === 'activity-logs'
+            ? '<tr><th>Tanggal</th><th>User</th><th>Module</th><th>Action</th><th>Deskripsi</th></tr>'
+            : '<tr><th>Kode</th><th>Peminjam</th><th>Status</th><th>Tanggal Buat</th><th>Tanggal Pinjam</th><th>Jatuh Tempo</th><th>Tanggal Kembali</th><th>Total Item</th><th>Total Harga</th><th>Durasi (Hari)</th><th>Total Denda</th><th>Tujuan</th></tr>';
+
+        $colspan = $type === 'activity-logs' ? 5 : 12;
+
+        return '<html><head><meta charset="UTF-8"></head><body>'
+            . '<table border="1">'
+            . '<tr><th colspan="'.$colspan.'">'.$this->escapeExcel($title).'</th></tr>'
+            . $headersHtml
+            . $rowsHtml
+            . '</table></body></html>';
     }
 
-    private function borrowingHistoryExportPayload(): array
+    private function buildActivityLogRows(): string
     {
-        $headers = [
-            'Kode',
-            'Peminjam',
-            'Status',
-            'Tanggal Buat',
-            'Tanggal Pinjam',
-            'Jatuh Tempo',
-            'Tanggal Kembali',
-            'Total Item',
-            'Total Denda',
-            'Tujuan',
-        ];
+        $logs = ActivityLog::with('user')
+            ->latest()
+            ->get();
 
-        $rows = Borrowing::with(['user', 'items'])
+        $html = '';
+
+        foreach ($logs as $log) {
+            $html .= '<tr>'
+                . '<td>'.$this->escapeExcel(optional($log->created_at)->format('Y-m-d H:i:s')).'</td>'
+                . '<td>'.$this->escapeExcel($log->user?->name ?? '-').'</td>'
+                . '<td>'.$this->escapeExcel($log->module).'</td>'
+                . '<td>'.$this->escapeExcel($log->action).'</td>'
+                . '<td>'.$this->escapeExcel($log->description).'</td>'
+                . '</tr>';
+        }
+
+        return $html;
+    }
+
+    private function buildBorrowingHistoryRows(): string
+    {
+        $borrowings = Borrowing::with(['user', 'items'])
             ->latest('created_at')
-            ->get()
-            ->map(fn (Borrowing $borrowing) => [
-                $borrowing->borrowing_code,
-                $borrowing->user?->name ?? '-',
-                $borrowing->status,
-                optional($borrowing->created_at)->format('Y-m-d H:i:s'),
-                optional($borrowing->borrowed_at)->format('Y-m-d H:i:s'),
-                optional($borrowing->due_at)->format('Y-m-d H:i:s'),
-                optional($borrowing->returned_at)->format('Y-m-d H:i:s'),
-                (string) $borrowing->items->sum('quantity'),
-                (string) $borrowing->total_fine,
-                $borrowing->purpose ?? '-',
-            ]);
+            ->get();
 
-        return ['laporan-borrowing-history.csv', $headers, $rows];
+        $html = '';
+
+        foreach ($borrowings as $borrowing) {
+            $totalPrice = $borrowing->items->sum(function ($item) {
+                return $item->quantity * $item->unit_fee;
+            });
+            $duration = $borrowing->due_at ? $borrowing->created_at->diffInDays($borrowing->due_at) : 0;
+
+            $html .= '<tr>'
+                . '<td>'.$this->escapeExcel($borrowing->borrowing_code).'</td>'
+                . '<td>'.$this->escapeExcel($borrowing->user?->name ?? '-').'</td>'
+                . '<td>'.$this->escapeExcel($borrowing->status).'</td>'
+                . '<td>'.$this->escapeExcel(optional($borrowing->created_at)->format('Y-m-d H:i:s')).'</td>'
+                . '<td>'.$this->escapeExcel(optional($borrowing->borrowed_at)->format('Y-m-d H:i:s')).'</td>'
+                . '<td>'.$this->escapeExcel(optional($borrowing->due_at)->format('Y-m-d H:i:s')).'</td>'
+                . '<td>'.$this->escapeExcel(optional($borrowing->returned_at)->format('Y-m-d H:i:s')).'</td>'
+                . '<td>'.$this->escapeExcel((string) $borrowing->items->sum('quantity')).'</td>'
+                . '<td>'.$this->escapeExcel('Rp ' . number_format($totalPrice, 0, ',', '.')).'</td>'
+                . '<td>'.$this->escapeExcel($duration . ' hari').'</td>'
+                . '<td>'.$this->escapeExcel('Rp ' . number_format($borrowing->total_fine, 0, ',', '.')).'</td>'
+                . '<td>'.$this->escapeExcel($borrowing->purpose ?? '-').'</td>'
+                . '</tr>';
+        }
+
+        return $html;
+    }
+
+    private function escapeExcel(?string $value): string
+    {
+        return htmlspecialchars($value ?? '', ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
     }
 }

@@ -16,6 +16,8 @@ class BorrowingItem extends Model
         'unit_fee',
         'fine_amount',
         'status',
+        'return_condition',
+        'return_photo_path',
     ];
 
     protected function casts(): array

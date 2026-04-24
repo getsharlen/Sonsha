@@ -33,7 +33,7 @@
                     <div class="flex items-center justify-between gap-3">
                         <div>
                             <p class="font-medium text-white">{{ $borrowing->borrowing_code }}</p>
-                            <p class="text-slate-300">{{ $borrowing->user?->name }} - {{ $borrowing->status }}</p>
+                            <p class="text-slate-300">{{ $borrowing->user?->name }} - {{ $borrowing->status === 'return_requested' ? 'menunggu verifikasi return' : $borrowing->status }}</p>
                         </div>
                         @if(in_array(auth()->user()->role, ['admin', 'petugas'], true) && $borrowing->status === 'requested')
                             <form method="POST" action="/borrowings/{{ $borrowing->id }}/approve" class="confirm-action" data-confirm="Setujui peminjaman ini?">
@@ -42,19 +42,46 @@
                             </form>
                         @endif
                     </div>
+
                     <p class="mt-1 text-xs text-slate-400">Jatuh tempo: {{ optional($borrowing->due_at)->format('d M Y') ?? '-' }} | Dikembalikan: {{ optional($borrowing->returned_at)->format('d M Y H:i') ?? '-' }}</p>
+                    
+                    <p class="mt-1 text-xs text-slate-400">Total harga: Rp {{ number_format($borrowing->items->sum(fn($i) => $i->quantity * $i->unit_fee), 0, ',', '.') }} | Durasi: {{ $borrowing->due_at ? $borrowing->created_at->diffInDays($borrowing->due_at) . ' hari' : '-' }}</p>
+                    
                     <p class="mt-2 text-slate-300">Tujuan: {{ $borrowing->purpose }}</p>
+
                     <div class="mt-2 rounded-xl border border-white/10 bg-slate-900/60 p-3 text-xs text-slate-300">
                         <p class="font-semibold text-white">Detail item</p>
                         @foreach($borrowing->items as $item)
-                            <p>- {{ $item->asset?->name }} | qty {{ $item->quantity }} | status {{ $item->status }}</p>
+                            <p>
+                                - {{ $item->asset?->name }} | qty {{ $item->quantity }} | status {{ $item->status }}
+                                @if($item->return_condition)
+                                    | kondisi {{ $item->return_condition === 'good' ? 'baik' : 'rusak' }}
+                                @endif
+                                @if($item->return_photo_path)
+                                    | foto return tersedia
+                                @endif
+                            </p>
                         @endforeach
                     </div>
+
                     <p class="mt-1 text-slate-400">Denda: Rp {{ number_format($borrowing->total_fine, 0, ',', '.') }}</p>
-                    @if(in_array($borrowing->status, ['approved', 'borrowed'], true))
-                        <form class="mt-3 confirm-action" method="POST" action="/borrowings/{{ $borrowing->id }}/return" data-confirm="Proses pengembalian peminjaman ini?">
+
+                    @if($borrowing->status === 'return_requested')
+                        <form class="mt-3 confirm-action" method="POST" action="/borrowings/{{ $borrowing->id }}/return-approve" data-confirm="Terima pengembalian ini dan update stok?">
                             @csrf
-                            <button class="rounded-xl bg-pink-500 px-3 py-2 text-xs font-semibold text-white">Proses Pengembalian</button>
+                            @foreach($borrowing->items as $index => $item)
+                                <div class="mb-2">
+                                    <label class="text-xs text-slate-300">{{ $item->asset->name }} (qty: {{ $item->quantity }})</label>
+                                    @if($item->return_photo_path)
+                                        <img src="{{ asset('storage/' . $item->return_photo_path) }}" alt="Foto return {{ $item->asset->name }}" class="my-2 w-16 h-16 rounded-lg object-cover border border-white/20">
+                                    @endif
+                                    <select name="conditions[{{ $index }}]" class="field-input text-xs" required>
+                                        <option value="good">Baik</option>
+                                        <option value="damaged">Rusak</option>
+                                    </select>
+                                </div>
+                            @endforeach
+                            <button class="rounded-xl bg-pink-500 px-3 py-2 text-xs font-semibold text-white">Terima Pengembalian</button>
                         </form>
                     @endif
                 </div>

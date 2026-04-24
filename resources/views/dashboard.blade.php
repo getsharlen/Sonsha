@@ -64,14 +64,10 @@
     </section>
 
     <section class="glass-panel rounded-3xl p-5">
-        <h3 class="text-lg font-semibold">Manajemen Saldo</h3>
-        <p class="mt-2 text-sm text-slate-300">Saldo user dipakai untuk mockup e-wallet denda otomatis.</p>
-        <form class="mt-4 flex gap-3" method="POST" action="/wallet/top-up">
-            @csrf
-            <input name="amount" type="number" min="1000" step="1000" placeholder="Top up saldo" class="field-input min-w-0 flex-1">
-            <button class="rounded-2xl bg-gradient-to-r from-pink-500 to-rose-600 px-4 py-3 font-semibold text-white transition hover:brightness-110">Top Up</button>
-        </form>
+        <h3 class="text-lg font-semibold">Ringkasan Saldo</h3>
+        <p class="mt-2 text-sm text-slate-300">Admin/petugas hanya memantau saldo yang terpotong dari denda.</p>
         <div class="mt-5 rounded-2xl border border-white/10 bg-slate-950/60 p-4 text-sm text-slate-300">
+            <p>Saldo akun aktif: <span class="font-semibold text-white">Rp {{ number_format($user->balance ?? 0, 0, ',', '.') }}</span></p>
             <p>Status akun: <span class="font-semibold text-white">{{ $user->status }}</span></p>
             <p>Locked reason: {{ $user->locked_reason ?? '-' }}</p>
         </div>

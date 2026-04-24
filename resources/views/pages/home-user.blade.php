@@ -153,7 +153,7 @@
             <h2 class="text-4xl font-bold mb-4">Siap Tampil Memukau?</h2>
             <p class="text-slate-300 mb-8">Dapatkan akses eksklusif ke koleksi terbaru dan penawaran spesial member.</p>
             <a href="/catalog" class="btn-luxury bg-white text-pink-600 hover:bg-slate-100 hover:shadow-xl px-8 py-3 rounded-full font-bold inline-block transition">
-                Mulai Belanja Sekarang
+                Mulai Sewa Sekarang
             </a>
         </div>
     </div>

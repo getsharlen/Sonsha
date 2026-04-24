@@ -20,6 +20,8 @@
                     <span class="status-pending px-3 py-1 rounded-full text-xs font-semibold">Menunggu Approval</span>
                 @elseif(in_array($borrowing->status, ['borrowed', 'late', 'approved'], true))
                     <span class="status-borrowed px-3 py-1 rounded-full text-xs font-semibold">Sedang Dipinjam</span>
+                @elseif($borrowing->status === 'return_requested')
+                    <span class="status-pending px-3 py-1 rounded-full text-xs font-semibold">Menunggu Verifikasi Pengembalian</span>
                 @elseif($borrowing->status === 'returned')
                     <span class="status-returned px-3 py-1 rounded-full text-xs font-semibold">Dikembalikan</span>
                 @else
@@ -96,12 +98,27 @@
                     @endif
 
                     @if(in_array($borrowing->status, ['borrowed', 'late', 'approved'], true) && !$borrowing->returned_at)
-                        <form action="/borrowings/{{ $borrowing->id }}/return" method="POST" class="inline confirm-action" data-confirm="Konfirmasi pengembalian barang?">
+                        <form action="/borrowings/{{ $borrowing->id }}/return-request" method="POST" enctype="multipart/form-data" class="inline confirm-action" data-confirm="Ajukan pengembalian dan kirim foto barang sekarang?">
                             @csrf
+                            <div class="mb-4 p-4 bg-slate-800/30 rounded-lg">
+                                <h4 class="text-white font-semibold mb-3">Upload Foto Barang Saat Pengembalian</h4>
+                                @foreach($borrowing->items as $index => $item)
+                                    <div class="mb-3">
+                                        <label class="block text-slate-300 text-sm mb-2">{{ $item->asset->name }} (Qty: {{ $item->quantity }})</label>
+                                        <input name="photos[{{ $index }}]" type="file" accept="image/png,image/jpeg,image/webp" class="w-full bg-slate-700 border border-slate-600 text-white px-3 py-2 rounded-lg text-sm" required>
+                                    </div>
+                                @endforeach
+                            </div>
                             <button type="submit" class="rounded-lg bg-blue-500/20 border border-blue-400/30 text-blue-300 px-4 py-2 text-sm font-semibold">
-                                Kembalikan Sekarang
+                                Ajukan Pengembalian
                             </button>
                         </form>
+                    @endif
+
+                    @if($borrowing->status === 'return_requested')
+                        <div class="rounded-lg bg-yellow-500/10 border border-yellow-400/30 text-yellow-300 px-4 py-2 text-sm font-semibold">
+                            Pengembalian sudah diajukan. Menunggu verifikasi petugas/admin.
+                        </div>
                     @endif
 
                     @if(($borrowing->pending_fine ?? 0) > 0 && $borrowing->payment)

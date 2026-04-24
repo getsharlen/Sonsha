@@ -49,7 +49,7 @@ class BorrowingController extends Controller
             $summary = [
                 'total' => Borrowing::where('user_id', $user->id)->count(),
                 'active' => Borrowing::where('user_id', $user->id)
-                    ->whereIn('status', ['borrowed', 'late'])
+                    ->whereIn('status', ['borrowed', 'late', 'return_requested'])
                     ->count(),
                 'pending' => Borrowing::where('user_id', $user->id)
                     ->where('status', 'requested')
@@ -201,7 +201,7 @@ class BorrowingController extends Controller
         }
 
         DB::transaction(function () use ($borrowing) {
-            $borrowing->update(['status' => 'declined']);
+            $borrowing->update(['status' => 'rejected']);
 
             ActivityLog::create([
                 'user_id' => Auth::id(),
@@ -215,15 +215,91 @@ class BorrowingController extends Controller
         return back()->with('status', 'Peminjaman ditolak.');
     }
 
-    public function returnBorrowing(Borrowing $borrowing): RedirectResponse
+    public function requestReturn(Request $request, Borrowing $borrowing): RedirectResponse
     {
-        abort_unless(Auth::user()->id === $borrowing->user_id || in_array(Auth::user()->role, ['admin', 'petugas'], true), 403);
-        if (in_array($borrowing->status, ['returned', 'paid', 'late'], true) && $borrowing->returned_at) {
-            return back()->with('status', 'Peminjaman ini sudah dikembalikan sebelumnya.');
+        $user = Auth::user();
+        abort_unless($user->id === $borrowing->user_id && $user->role === 'peminjam', 403);
+
+        if (! in_array($borrowing->status, ['approved', 'borrowed', 'late'], true) || $borrowing->returned_at) {
+            return back()->with('status', 'Peminjaman ini belum bisa diajukan pengembaliannya.');
         }
 
-        DB::transaction(function () use ($borrowing) {
+        $request->validate([
+            'photos' => ['required', 'array'],
+            'photos.*' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:4096'],
+        ]);
+
+        DB::transaction(function () use ($request, $borrowing) {
+            $borrowing->load('items');
+
+            if ($borrowing->items->count() !== count($request->file('photos', []))) {
+                throw ValidationException::withMessages([
+                    'photos' => 'Foto pengembalian harus diunggah untuk setiap item.',
+                ]);
+            }
+
+            foreach ($borrowing->items as $index => $item) {
+                $uploadedPhoto = $request->file("photos.{$index}");
+                if (! $uploadedPhoto) {
+                    throw ValidationException::withMessages([
+                        "photos.{$index}" => 'Foto pengembalian item wajib diisi.',
+                    ]);
+                }
+
+                $path = $uploadedPhoto->store('returns', 'public');
+
+                $item->update([
+                    'return_photo_path' => $path,
+                ]);
+            }
+
+            $borrowing->update([
+                'status' => 'return_requested',
+                'return_requested_at' => now(),
+            ]);
+
+            ActivityLog::create([
+                'user_id' => Auth::id(),
+                'module' => 'borrowing',
+                'action' => 'return_request',
+                'description' => 'Peminjam mengajukan pengembalian dengan foto barang.',
+                'payload' => ['borrowing_code' => $borrowing->borrowing_code],
+            ]);
+        });
+
+        return back()->with('status', 'Pengembalian berhasil diajukan. Menunggu verifikasi petugas/admin.');
+    }
+
+    public function approveReturn(Request $request, Borrowing $borrowing): RedirectResponse
+    {
+        abort_unless(in_array(Auth::user()->role, ['admin', 'petugas'], true), 403);
+
+        if ($borrowing->status !== 'return_requested') {
+            return back()->with('status', 'Pengembalian ini belum diajukan oleh peminjam.');
+        }
+
+        $request->validate([
+            'conditions' => ['required', 'array'],
+            'conditions.*' => ['required', 'in:good,damaged'],
+        ]);
+
+        DB::transaction(function () use ($request, $borrowing) {
             $borrowing->load('items.asset', 'user');
+
+            if ($borrowing->items->count() !== count($request->input('conditions', []))) {
+                throw ValidationException::withMessages([
+                    'conditions' => 'Kondisi barang harus diisi untuk setiap item.',
+                ]);
+            }
+
+            foreach ($borrowing->items as $index => $item) {
+                if (! $item->return_photo_path) {
+                    throw ValidationException::withMessages([
+                        'conditions' => 'Foto pengembalian belum lengkap. Minta user unggah ulang.',
+                    ]);
+                }
+            }
+
             $returnedAt = now();
             $daysLate = $borrowing->due_at && $returnedAt->greaterThan($borrowing->due_at)
                 ? $borrowing->due_at->startOfDay()->diffInDays($returnedAt->startOfDay())
@@ -231,10 +307,17 @@ class BorrowingController extends Controller
 
             $fineAmount = $daysLate * 5000;
 
-            foreach ($borrowing->items as $item) {
+            foreach ($borrowing->items as $index => $item) {
+                $condition = $request->input("conditions.{$index}", 'good');
                 $item->status = 'returned';
                 $item->fine_amount = $fineAmount;
+                $item->return_condition = $condition;
                 $item->save();
+
+                if ($condition === 'damaged' && $item->asset && $item->asset->condition !== 'rusak') {
+                    $item->asset->update(['condition' => 'rusak']);
+                }
+
                 $this->syncAssetStock($item->asset);
             }
 
@@ -271,13 +354,13 @@ class BorrowingController extends Controller
             ActivityLog::create([
                 'user_id' => Auth::id(),
                 'module' => 'borrowing',
-                'action' => 'return',
-                'description' => 'Pengembalian alat diproses otomatis.',
-                'payload' => ['borrowing_code' => $borrowing->borrowing_code, 'fine' => $fineAmount],
+                'action' => 'return_approve',
+                'description' => 'Pengembalian diterima petugas/admin dan kondisi barang ditentukan.',
+                'payload' => ['borrowing_code' => $borrowing->borrowing_code, 'fine' => $fineAmount, 'conditions' => $request->input('conditions')],
             ]);
         });
 
-        return back()->with('status', 'Pengembalian berhasil diproses.');
+        return back()->with('status', 'Pengembalian berhasil diterima dan stok sudah dikembalikan.');
     }
 
     public function cancel(Borrowing $borrowing): RedirectResponse

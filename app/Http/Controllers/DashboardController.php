@@ -46,7 +46,7 @@ class DashboardController extends Controller
             'users' => User::count(),
             'assets' => Asset::count(),
             'borrowings' => Borrowing::count(),
-            'openBorrowings' => Borrowing::whereIn('status', ['requested', 'borrowed', 'late'])->count(),
+            'openBorrowings' => Borrowing::whereIn('status', ['requested', 'borrowed', 'late', 'return_requested'])->count(),
         ];
 
         $monthlyBorrowings = Borrowing::select('borrowed_at')
@@ -87,6 +87,8 @@ class DashboardController extends Controller
 
     public function topUp(Request $request): RedirectResponse
     {
+        abort_unless($request->user()->role === 'peminjam', 403);
+
         $data = $request->validate([
             'amount' => ['required', 'numeric', 'min:1000'],
         ]);

@@ -44,6 +44,7 @@
                             </div>
                         </div>
                         <p class="mt-1 text-xs text-slate-400">Jatuh tempo: {{ optional($borrowing->due_at)->format('d M Y') }}</p>
+                        <p class="mt-1 text-xs text-slate-400">Total: Rp {{ number_format($borrowing->items->sum(function($item) { return $item->quantity * $item->unit_fee; }), 0, ',', '.') }} | Durasi: {{ $borrowing->due_at ? $borrowing->created_at->diffInDays($borrowing->due_at) . ' hari' : '-' }}</p>
                         <p class="mt-2 text-slate-300">Tujuan: {{ $borrowing->purpose }}</p>
                         <div class="mt-2 rounded-xl border border-white/10 bg-slate-900/60 p-3 text-xs text-slate-300">
                             @foreach($borrowing->items as $item)

@@ -30,6 +30,9 @@
                             @case('borrowed')
                                 bg-purple-500/20 text-purple-300 border border-purple-500/30
                             @break
+                            @case('return_requested')
+                                bg-amber-500/20 text-amber-300 border border-amber-500/30
+                            @break
                             @case('late')
                                 bg-red-500/20 text-red-300 border border-red-500/30
                             @break
@@ -48,7 +51,7 @@
                 </div>
 
                 <!-- Key Dates -->
-                <div class="grid grid-cols-1 gap-4 pt-6 border-t border-white/10 md:grid-cols-3">
+                <div class="grid grid-cols-1 gap-4 pt-6 border-t border-white/10 md:grid-cols-4">
                     <div>
                         <p class="text-slate-500 text-sm mb-1">Tanggal Permintaan</p>
                         <p class="text-white font-semibold">{{ $borrowing->created_at->format('d M Y H:i') }}</p>
@@ -60,6 +63,11 @@
                     <div>
                         <p class="text-slate-500 text-sm mb-1">Tanggal Pengembalian</p>
                         <p class="text-white font-semibold">{{ $borrowing->returned_at ? $borrowing->returned_at->format('d M Y') : '—' }}</p>
+                    </div>
+                    <div>
+                        <p class="text-slate-500 text-sm mb-1">Total Harga</p>
+                        <p class="text-pink-300 font-semibold">Rp {{ number_format($borrowing->items->sum(function($item) { return $item->quantity * $item->unit_fee; }), 0, ',', '.') }}</p>
+                        <p class="text-slate-500 text-xs">Durasi: {{ $borrowing->due_at ? $borrowing->created_at->diffInDays($borrowing->due_at) . ' hari' : '-' }}</p>
                     </div>
                 </div>
             </div>
@@ -93,6 +101,19 @@
                                         </div>
                                     </div>
                                     <p class="text-slate-400 text-sm">Brand: {{ $item->asset->brand ?? '-' }}</p>
+                                    @if($item->return_condition)
+                                        <p class="text-sm mt-1">
+                                            <span class="px-2 py-1 rounded text-xs font-semibold {{ $item->return_condition === 'good' ? 'bg-green-500/20 text-green-300' : 'bg-red-500/20 text-red-300' }}">
+                                                Kondisi: {{ $item->return_condition === 'good' ? 'Baik' : 'Rusak' }}
+                                            </span>
+                                        </p>
+                                    @endif
+                                    @if($item->return_photo_path)
+                                        <div class="mt-3">
+                                            <p class="text-slate-400 text-xs mb-2">Foto pengembalian dari peminjam:</p>
+                                            <img src="{{ asset('storage/' . $item->return_photo_path) }}" alt="Foto pengembalian {{ $item->asset->name }}" class="w-28 h-28 rounded-lg object-cover border border-white/20">
+                                        </div>
+                                    @endif
                                 </div>
                             </div>
                         </div>
@@ -123,19 +144,33 @@
                         </form>
                     @endif
 
-                    @if(in_array($borrowing->status, ['borrowed', 'late']))
-                        <form method="POST" action="/borrowings/{{ $borrowing->id }}/return" class="inline-block w-full confirm-action" data-confirm="Proses pengembalian peminjaman ini?">
+                    @if($borrowing->status === 'return_requested')
+                        <form method="POST" action="/borrowings/{{ $borrowing->id }}/return-approve" class="inline-block w-full confirm-action" data-confirm="Terima pengembalian ini dan update stok?">
                             @csrf
+                            <div class="mb-4">
+                                <h4 class="text-white font-semibold mb-3">Verifikasi Kondisi Barang</h4>
+                                @foreach($borrowing->items as $index => $item)
+                                    <div class="mb-3 p-3 bg-slate-800/50 rounded-lg">
+                                        <label class="block text-slate-300 text-sm mb-2">{{ $item->asset->name }} (Qty: {{ $item->quantity }})</label>
+                                        @if($item->return_photo_path)
+                                            <img src="{{ asset('storage/' . $item->return_photo_path) }}" alt="Foto return {{ $item->asset->name }}" class="mb-2 w-24 h-24 rounded-lg object-cover border border-white/20">
+                                        @endif
+                                        <select name="conditions[{{ $index }}]" class="w-full bg-slate-700 border border-slate-600 text-white px-3 py-2 rounded-lg" required>
+                                            <option value="good">Baik - Tidak ada kerusakan</option>
+                                            <option value="damaged">Rusak - Ada kerusakan</option>
+                                        </select>
+                                    </div>
+                                @endforeach
+                            </div>
                             <button class="w-full bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-lg font-semibold transition">
-                                <i class="fas fa-undo mr-2"></i> Proses Pengembalian
+                                <i class="fas fa-check mr-2"></i> Terima Pengembalian
                             </button>
                         </form>
                     @endif
 
                     @if($borrowing->status === 'requested')
-                        <form method="POST" action="/borrowings/{{ $borrowing->id }}" class="inline-block w-full confirm-action" data-confirm="Tolak peminjaman ini?">
+                        <form method="POST" action="/borrowings/{{ $borrowing->id }}/decline" class="inline-block w-full confirm-action" data-confirm="Tolak peminjaman ini?">
                             @csrf
-                            @method('DELETE')
                             <button class="w-full bg-red-600/20 hover:bg-red-600/30 border border-red-500/30 text-red-300 px-6 py-3 rounded-lg font-semibold transition">
                                 <i class="fas fa-times mr-2"></i> Tolak Peminjaman
                             </button>

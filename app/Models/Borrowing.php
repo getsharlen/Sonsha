@@ -17,6 +17,7 @@ class Borrowing extends Model
         'returned_by',
         'borrowed_at',
         'due_at',
+        'return_requested_at',
         'returned_at',
         'status',
         'purpose',
@@ -29,6 +30,7 @@ class Borrowing extends Model
         return [
             'borrowed_at' => 'datetime',
             'due_at' => 'datetime',
+            'return_requested_at' => 'datetime',
             'returned_at' => 'datetime',
             'total_fine' => 'decimal:2',
         ];

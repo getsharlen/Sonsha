@@ -83,6 +83,8 @@
                         <th class="px-3 py-2">Jatuh Tempo</th>
                         <th class="px-3 py-2">Kembali</th>
                         <th class="px-3 py-2">Qty</th>
+                        <th class="px-3 py-2">Total Harga</th>
+                        <th class="px-3 py-2">Durasi</th>
                         <th class="px-3 py-2">Denda</th>
                     </tr>
                 </thead>
@@ -95,11 +97,13 @@
                             <td class="px-3 py-2 text-slate-300">{{ optional($borrowing->due_at)->format('d M Y') ?? '-' }}</td>
                             <td class="px-3 py-2 text-slate-300">{{ optional($borrowing->returned_at)->format('d M Y H:i') ?? '-' }}</td>
                             <td class="px-3 py-2 text-slate-300">{{ $borrowing->items->sum('quantity') }}</td>
+                            <td class="px-3 py-2 text-emerald-300">Rp {{ number_format($borrowing->items->sum(function($item) { return $item->quantity * $item->unit_fee; }), 0, ',', '.') }}</td>
+                            <td class="px-3 py-2 text-blue-300">{{ $borrowing->due_at ? $borrowing->created_at->diffInDays($borrowing->due_at) . ' hari' : '-' }}</td>
                             <td class="px-3 py-2 text-slate-300">Rp {{ number_format((float) $borrowing->total_fine, 0, ',', '.') }}</td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="px-3 py-6 text-center text-slate-400">Belum ada history penyewaan.</td>
+                            <td colspan="9" class="px-3 py-6 text-center text-slate-400">Belum ada history penyewaan.</td>
                         </tr>
                     @endforelse
                 </tbody>
